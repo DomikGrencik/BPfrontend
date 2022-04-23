@@ -1,11 +1,20 @@
-import MenuAppBar from "./components/MenuAppBar";
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "./js/layout/Layout";
+import Home from "./js/pages/Home";
+import NoPage from "./js/pages/NoPage";
 
-function App() {
+const App = () => {
   return (
-    <div>
-      <MenuAppBar />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="*" element={<NoPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
-}
+};
 
 export default App;

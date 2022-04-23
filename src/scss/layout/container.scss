@@ -1,0 +1,7 @@
+.container {
+  @include container;
+
+  &--default {
+    @include container(pxToRem(50), pxToRem(50));
+  }
+}
