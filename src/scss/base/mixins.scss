@@ -160,20 +160,41 @@
   $side-max: $max-side-margin,
   $side-min: $min-side-margin
 ) {
-  @include responsive-param("margin-top", $top-max, $top-min);
-  @include responsive-param("margin-bottom", $bottom-max, $bottom-min);
-  @include responsive-param("margin-left", $side-max, $side-min);
-  @include responsive-param("margin-right", $side-max, $side-min);
+  @if stripUnit($top-max) > 0 {
+    @include responsive-param("margin-top", $top-max, $top-min);
+  }
+  @if stripUnit($bottom-max) > 0 {
+    @include responsive-param("margin-bottom", $bottom-max, $bottom-min);
+  }
 
-  @include media("larger", $container-breakpoint) {
-    $container-content-max-width: calc(
-      #{$container-breakpoint} - #{$scrollbar-width} - 2 * #{$side-max}
-    );
+  width: 100%;
+  max-width: calc(
+    #{$container-breakpoint} - #{$scrollbar-width} - 2 * #{$side-max}
+  );
+  margin-left: auto;
+  margin-right: auto;
 
-    width: 100%;
-    max-width: $container-content-max-width;
-    margin-left: auto;
-    margin-right: auto;
+  @include media("<", $container-breakpoint) {
+    max-width: calc(100vw - #{$scrollbar-width} - 2 * #{$side-max});
+  }
+
+  $reducer: false;
+  $count: length($responsive-breakpoints);
+
+  @if $side-max != $side-min {
+    $reducer: ($side-max - $side-min) / $count;
+  }
+
+  @if $reducer {
+    @for $i from 1 to $count + 1 {
+      $responsive-breakpoint: nth($responsive-breakpoints, $i);
+
+      @include media("<", $responsive-breakpoint) {
+        max-width: calc(
+          100vw - #{$scrollbar-width} - 2 * #{$side-max - $reducer * $i}
+        );
+      }
+    }
   }
 }
 

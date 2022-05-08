@@ -1,9 +1,14 @@
-const getDefaultFontSize = () =>
-  parseFloat(
-    window.getComputedStyle(document.body, null).getPropertyValue("font-size")
-  );
+import { FONT_SIZE_DEFAULT } from "./variables";
 
-export const pxToRem = (n) => `${n / getDefaultFontSize()}rem`;
+export const pxToRem = (n) => {
+  if (n instanceof Array) {
+    let result = "";
+    n.forEach((num) => (result = `${result} ${num / FONT_SIZE_DEFAULT}rem`));
+    return result;
+  } else {
+    return `${n / FONT_SIZE_DEFAULT}rem`;
+  }
+};
 
 export function debounce(
   callback,
