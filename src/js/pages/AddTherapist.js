@@ -47,10 +47,10 @@ const AddTherapist = () => {
   );
 
   return (
-    <main className="addtherapist container--default flex--grow flex">
+    <main className="page container--default flex--grow flex">
       <form
         onSubmit={submitForm}
-        className="addtherapist__form flex--grow flex flex--column flex--justify-center flex--align-center"
+        className="page__form flex--grow flex flex--column flex--justify-center flex--align-center"
       >
         <h2>Přidání logopeda</h2>
         <TextField label="Jméno" variant="outlined" />
@@ -61,7 +61,7 @@ const AddTherapist = () => {
           error={formError}
           helperText={formErrorMsg}
         />
-        <div className="addtherapist__width flex flex--justify-space-between">
+        <div className="page__width flex flex--justify-space-between">
           <Button
             onClick={cancelAction}
             sx={{ width: 100, height: 56 }}

@@ -17,9 +17,9 @@ const AddPatient = () => {
     birth_year: "",
     gender: "",
   });
+  const navigate = useNavigate();
   const [formError, setFormError] = useState(false);
   const [formErrorMsg, setFormErrorMsg] = useState("");
-  const navigate = useNavigate();
   //   const [value, setValue] = React.useState(new Date());
   console.log(userToken);
 
@@ -59,10 +59,10 @@ const AddPatient = () => {
   );
 
   return (
-    <main className="addtherapist container--default flex--grow flex">
+    <main className="page container--default flex--grow flex">
       <form
         onSubmit={submitForm}
-        className="addtherapist__form flex--grow flex flex--column flex--justify-center flex--align-center"
+        className="page__form flex--grow flex flex--column flex--justify-center flex--align-center"
       >
         <h2>Přidání pacienta</h2>
         <TextField label="Jméno" variant="outlined" />
@@ -88,7 +88,7 @@ const AddPatient = () => {
           sx={{ width: 210 }}
           renderInput={(params) => <TextField {...params} label="Pohlaví" />}
         />
-        <div className="addtherapist__width flex flex--justify-space-evenly">
+        <div className="page__width flex flex--justify-space-evenly">
           <Button
             onClick={cancelAction}
             sx={{ width: 100, height: 56 }}

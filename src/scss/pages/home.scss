@@ -1,0 +1,10 @@
+.home {
+  &__sticky {
+    position: sticky;
+    bottom: pxToRem(20);
+  }
+
+  &__margin {
+    margin-top: pxToRem(20);
+  }
+}

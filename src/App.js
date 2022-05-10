@@ -7,6 +7,7 @@ import Login from "./js/pages/Login";
 import NoPage from "./js/pages/NoPage";
 import AddTherapist from "./js/pages/AddTherapist";
 import AddPatient from "./js/pages/AddPatient";
+import Patient from "./js/pages/Patient";
 
 const AppContext = createContext();
 export const useAppContext = () => useContext(AppContext);
@@ -24,6 +25,7 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/addtherapist" element={<AddTherapist />} />
             <Route path="/addpatient" element={<AddPatient />} />
+            <Route path="/patient" element={<Patient />} />
             <Route path="*" element={<NoPage />} />
           </Route>
         </Routes>

@@ -1,0 +1,9 @@
+.page {
+  &__form {
+    gap: pxToRem(20);
+  }
+
+  &__width {
+    width: pxToRem(210);
+  }
+}
