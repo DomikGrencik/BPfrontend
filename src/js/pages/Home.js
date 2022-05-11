@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { List } from "@mui/material";
+import { CircularProgress, List } from "@mui/material";
 import { ListItem } from "@mui/material";
 import { ListItemText } from "@mui/material";
 import { ListItemButton } from "@mui/material";
@@ -8,26 +8,29 @@ import { TextField } from "@mui/material";
 import { Button } from "@mui/material";
 import { Modal } from "@mui/material";
 import { Box } from "@mui/system";
-import { Typography } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { InputAdornment } from "@mui/material";
 import { useAppContext } from "../../App";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/apiFetch";
+import { HTTP_OK } from "../utils/variables";
 
 const Home = () => {
   const { userToken } = useAppContext();
-  console.log(userToken);
+  const { setUserId } = useAppContext();
   const navigate = useNavigate();
   const [input, setInput] = useState("");
   const [id, setId] = useState("");
   const [therapists, setTherapists] = useState([]);
   const [patients, setPatients] = useState([]);
   const [therapistTF, setTherapistTF] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  console.log(userToken);
 
   const onChange = (event) => {
     const newValue = event.target.value;
@@ -52,6 +55,7 @@ const Home = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       const responseT = await apiFetch({
         route: "/users",
         method: "GET",
@@ -66,8 +70,7 @@ const Home = () => {
           Authorization: `Bearer ${userToken}`,
         },
       });
-      console.log(responseT);
-      console.log(responseP);
+      setLoading(false);
       if (Array.isArray(responseT.data)) {
         setTherapists(responseT.data);
       }
@@ -79,28 +82,38 @@ const Home = () => {
   }, [userToken]);
 
   const deleteTherapist = useCallback(async () => {
-    await apiFetch({
+    const result = await apiFetch({
       route: `/users/${id}`,
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${userToken}`,
       },
     });
-  }, [id, userToken]);
+    if (result.status === HTTP_OK) {
+      setTherapists(therapists.filter((therapist) => therapist.id !== id));
+    }
+  }, [id, therapists, userToken]);
 
   const deletePatient = useCallback(async () => {
-    await apiFetch({
+    const result = await apiFetch({
       route: `/patients/${id}`,
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${userToken}`,
       },
     });
-  }, [id, userToken]);
+    if (result.status === HTTP_OK) {
+      setPatients(patients.filter((patient) => patient.id_patient !== id));
+    }
+  }, [id, patients, userToken]);
 
-  return (
+  return loading ? (
+    <div className="flex--grow flex flex--justify-center flex--align-center">
+      <CircularProgress />
+    </div>
+  ) : (
     <main className="page container--default flex--grow flex">
-      <form className="page__form flex--grow flex flex--column flex--align-center">
+      <div className="page__form flex--grow flex flex--column flex--align-center">
         <TextField
           sx={{ width: 210 }}
           label="Hledat"
@@ -144,7 +157,13 @@ const Home = () => {
                       </IconButton>
                     }
                   >
-                    <ListItemButton onClick={navTherapist}>
+                    <ListItemButton
+                      onClick={() => {
+                        navTherapist();
+                        setUserId(therapist.id);
+                        setTherapistTF(true);
+                      }}
+                    >
                       <ListItemText
                         primary={
                           therapist.id +
@@ -188,7 +207,13 @@ const Home = () => {
                       </IconButton>
                     }
                   >
-                    <ListItemButton onClick={navPatient}>
+                    <ListItemButton
+                      onClick={() => {
+                        navPatient();
+                        setUserId(patient.id);
+                        setTherapistTF(false);
+                      }}
+                    >
                       <ListItemText
                         primary={patient.id_patient + ", " + patient.initials}
                       />
@@ -217,15 +242,10 @@ const Home = () => {
             </Button>
           </div>
         </div>
-      </form>
+      </div>
 
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box className="flex flex--column flex--justify-center flex--align-center home__modal">
+      <Modal open={open} onClose={handleClose}>
+        <Box className="flex flex--column flex--justify-center flex--align-center home__modal page__form">
           {therapistTF ? (
             <h4>Logoped bude smazán</h4>
           ) : (
@@ -237,7 +257,7 @@ const Home = () => {
               therapistTF ? deleteTherapist() : deletePatient();
               handleClose();
             }}
-            sx={{ width: 100, marginTop: 1 }}
+            sx={{ width: 100}}
             variant="contained"
             size="small"
             color="error"

@@ -1,22 +1,20 @@
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useCallback } from "react";
 import { TextField } from "@mui/material";
 import { Button } from "@mui/material";
 import { apiFetch } from "../utils/apiFetch";
 import { useAppContext } from "../../App";
 import { useNavigate } from "react-router-dom";
+import { HTTP_CREATED } from "../utils/variables";
 
 const AddTherapist = () => {
   const { userToken } = useAppContext();
-  const RegisterData = useRef({ name: "", surename: "", password: "" });
-  const [formError, setFormError] = useState(false);
-  const [formErrorMsg, setFormErrorMsg] = useState("");
+  const TherapistData = useRef({ name: "", surename: "", password: "" });
   const navigate = useNavigate();
   console.log(userToken);
 
   const submitForm = useCallback(
     async (event) => {
       event.preventDefault();
-      console.log(userToken);
       const response = await apiFetch({
         route: "/register",
         method: "POST",
@@ -24,15 +22,10 @@ const AddTherapist = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${userToken}`,
         },
-        body: RegisterData.current,
+        body: TherapistData.current,
       });
-      if (response.status === 201) {
-        setFormError(false);
-        setFormErrorMsg("");
+      if (response.status === HTTP_CREATED) {
         navigate("/", { replace: true });
-      } else {
-        setFormError(true);
-        setFormErrorMsg(response.data?.message);
       }
     },
     [navigate, userToken]
@@ -49,13 +42,32 @@ const AddTherapist = () => {
         className="page__form flex--grow flex flex--column flex--justify-center flex--align-center"
       >
         <h2>Přidání logopeda</h2>
-        <TextField label="Jméno" variant="outlined" />
-        <TextField label="Příjmení" variant="outlined" />
         <TextField
+          onChange={(event) =>
+            (TherapistData.current.name = event.target.value)
+          }
+          required
+          label="Jméno"
+          variant="outlined"
+        />
+        <TextField
+          onChange={(event) =>
+            (TherapistData.current.surename = event.target.value)
+          }
+          required
+          label="Příjmení"
+          variant="outlined"
+        />
+        <TextField
+          onChange={(event) =>
+            (TherapistData.current.password = event.target.value)
+          }
+          required
           label="Heslo"
           variant="outlined"
-          error={formError}
-          helperText={formErrorMsg}
+          type={"password"}
+          helperText={"minimálne 8 znaků"}
+          inputProps={{ minLength: 8 }}
         />
         <div className="page__width flex flex--justify-space-between">
           <Button

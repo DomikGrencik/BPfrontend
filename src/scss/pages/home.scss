@@ -1,7 +1,7 @@
 .home {
   &__sticky {
     position: sticky;
-    bottom: pxToRem(20);
+    bottom: pxToRem(50);
   }
 
   &__margin {
@@ -14,11 +14,11 @@
     left: 50%;
     transform: translate(-50%, -50%);
     width: pxToRem(240);
-    height: pxToRem(100);
+    height: pxToRem(120);
     padding: pxToRem(5);
     text-align: center;
     background-color: white;
-    border: 2px solid rgba(0, 0, 0, 0.6);
+    border: pxToRem(2) solid rgba(0, 0, 0, 0.6);
     border-radius: pxToRem(5);
     box-shadow: 24;
   }
