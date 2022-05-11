@@ -38,13 +38,9 @@ const AddTherapist = () => {
     [navigate, userToken]
   );
 
-  const cancelAction = useCallback(
-    async (event) => {
-      event.preventDefault();
-      navigate("/", { replace: true });
-    },
-    [navigate]
-  );
+  const cancelAction = useCallback(() => {
+    navigate("/", { replace: true });
+  }, [navigate]);
 
   return (
     <main className="page container--default flex--grow flex">
