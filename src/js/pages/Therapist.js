@@ -56,7 +56,6 @@ const Therapist = () => {
           Authorization: `Bearer ${userToken}`,
         },
       });
-      console.log(response.data);
       setTherapist(response.data);
     };
     fetchData();

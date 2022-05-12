@@ -1,10 +1,11 @@
-import React, { useState, useCallback} from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { TextField } from "@mui/material";
 import { Button } from "@mui/material";
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
+import { Autocomplete } from "@mui/material";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -15,13 +16,17 @@ import { HTTP_CREATED } from "../utils/variables";
 
 const AddPatient = () => {
   const { userToken } = useAppContext();
+  const [therapists, setTherapists] = useState([]);
   const [patientData, setPatientData] = useState({
     name: "",
     surename: "",
     birth_year: null,
     gender: "",
+    id: "",
   });
   const navigate = useNavigate();
+
+  const [value, setValue] = useState([]);
 
   const submitForm = useCallback(
     async (event) => {
@@ -52,7 +57,22 @@ const AddPatient = () => {
     navigate("/", { replace: true });
   }, [navigate]);
 
-  console.log(patientData);
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await apiFetch({
+        route: "/users",
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+      if (Array.isArray(response.data)) {
+        setTherapists(response.data);
+      }
+    };
+    fetchData();
+  }, [userToken]);
+
   return (
     <main className="page container--default flex--grow flex">
       <form
@@ -76,14 +96,6 @@ const AddPatient = () => {
           label="Příjmení"
           variant="outlined"
         />
-        {/* <TextField
-          onChange={(event) =>
-            setPatientData({ ...patientData, birth_year: event.target.value })
-          }
-          required
-          label="Rok narození"
-          variant="outlined"
-        /> */}
         <div className="page__width">
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <DatePicker
@@ -116,6 +128,30 @@ const AddPatient = () => {
             <MenuItem value={"Z"}>Ženské</MenuItem>
           </Select>
         </FormControl>
+        <Autocomplete
+          disablePortal
+          options={therapists.map((option) => {
+            return {
+              value: option.id,
+              label: `${option.name} ${option.surename}`,
+            };
+          })}
+          sx={{ width: 210 }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              required
+              label="Přidání logopedovi"
+              InputProps={{
+                ...params.InputProps,
+              }}
+            />
+          )}
+          onChange={(_, value) => {
+            setPatientData({ ...patientData, id: value.value });
+          }}
+          isOptionEqualToValue={(option, value) => option.value === value.value}
+        />
         <div className="page__width flex flex--justify-space-evenly">
           <Button
             onClick={cancelAction}

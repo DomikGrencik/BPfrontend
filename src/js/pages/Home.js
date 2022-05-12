@@ -26,11 +26,9 @@ const Home = () => {
   const [patients, setPatients] = useState([]);
   const [therapistTF, setTherapistTF] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  console.log(userToken);
+  const [openModal, setOpenModal] = useState(false);
+  const handleOpenModal = () => setOpenModal(true);
+  const handleCloseModal = () => setOpenModal(false);
 
   const onChange = (event) => {
     const newValue = event.target.value;
@@ -146,7 +144,7 @@ const Home = () => {
                     secondaryAction={
                       <IconButton
                         onClick={() => {
-                          handleOpen();
+                          handleOpenModal();
                           setId(therapist.id);
                           setTherapistTF(true);
                         }}
@@ -196,7 +194,7 @@ const Home = () => {
                     secondaryAction={
                       <IconButton
                         onClick={() => {
-                          handleOpen();
+                          handleOpenModal();
                           setId(patient.id_patient);
                           setTherapistTF(false);
                         }}
@@ -210,7 +208,7 @@ const Home = () => {
                     <ListItemButton
                       onClick={() => {
                         navPatient();
-                        setUserId(patient.id);
+                        setUserId(patient.id_patient);
                         setTherapistTF(false);
                       }}
                     >
@@ -244,7 +242,7 @@ const Home = () => {
         </div>
       </div>
 
-      <Modal open={open} onClose={handleClose}>
+      <Modal open={openModal} onClose={handleCloseModal}>
         <Box className="flex flex--column flex--justify-center flex--align-center home__modal page__form">
           {therapistTF ? (
             <h4>Logoped bude smazán</h4>
@@ -255,10 +253,10 @@ const Home = () => {
           <Button
             onClick={() => {
               therapistTF ? deleteTherapist() : deletePatient();
-              handleClose();
+              handleCloseModal();
             }}
             sx={{ width: 100}}
-            variant="contained"
+            variant="outlined"
             size="small"
             color="error"
             startIcon={<DeleteIcon />}
