@@ -26,8 +26,6 @@ const AddPatient = () => {
   });
   const navigate = useNavigate();
 
-  const [value, setValue] = useState([]);
-
   const submitForm = useCallback(
     async (event) => {
       event.preventDefault();

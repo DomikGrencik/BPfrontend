@@ -29,11 +29,12 @@ import { apiFetch } from "../utils/apiFetch";
 import { useAppContext } from "../../App";
 import { useNavigate } from "react-router-dom";
 import _ from "lodash";
-import { HTTP_OK } from "../utils/variables";
+import { HTTP_CREATED, HTTP_OK } from "../utils/variables";
 
 const Patient = () => {
   const { userToken } = useAppContext();
   const { userId } = useAppContext();
+  const { setTestId } = useAppContext();
   const [patient, setPatient] = useState({});
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +44,9 @@ const Patient = () => {
   const [openModal, setOpenModal] = useState(false);
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
+  const [openModalTest, setOpenModalTest] = useState(false);
+  const handleOpenModalTest = () => setOpenModalTest(true);
+  const handleCloseModalTest = () => setOpenModalTest(false);
 
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
@@ -67,6 +71,10 @@ const Patient = () => {
 
     prevOpen.current = open;
   }, [open]);
+
+  const navTest = useCallback(() => {
+    navigate("/test", { replace: true });
+  }, [navigate]);
 
   const getDx = useCallback(
     async (id_test) => {
@@ -137,6 +145,23 @@ const Patient = () => {
       setTests(tests.filter((test) => test.id_test !== idTest));
     }
   }, [idTest, tests, userToken]);
+
+  const addTest = useCallback(async () => {
+    const result = await apiFetch({
+      route: "/tests",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${userToken}`,
+      },
+      body: { id_patient: `${userId}` },
+    });
+    if (result.status === HTTP_CREATED) {
+      setTestId(result.data.id_test);
+      console.log(result.data.id_test)
+      navigate("/test", { replace: true });
+    }
+  }, [navigate, setTestId, userId, userToken]);
 
   return _.isEmpty(patient) ? (
     <div className="flex--grow flex flex--justify-center flex--align-center">
@@ -296,7 +321,7 @@ const Patient = () => {
       </Popper>
 
       <Modal open={openModal} onClose={handleCloseModal}>
-        <Box className="flex flex--column flex--justify-center flex--align-center home__modal page__form">
+        <Box className="flex flex--column flex--justify-center flex--align-center patient__modal-delete page__form">
           {isShortTestTF ? (
             <h4>Krátky test bude smazán</h4>
           ) : (
@@ -319,9 +344,36 @@ const Patient = () => {
         </Box>
       </Modal>
 
+      <Modal open={openModalTest} onClose={handleCloseModalTest}>
+        <Box className="flex flex--column flex--justify-center flex--align-center patient__modal-test page__form">
+          <h4>Výběr testu</h4>
+          <Button
+            onClick={() => {
+              console.log("test");
+              handleCloseModalTest();
+              addTest();
+            }}
+            sx={{ width: 210, height: 56 }}
+            variant="contained"
+          >
+            Základní verze
+          </Button>
+          <Button
+            onClick={() => {
+              console.log("short_test");
+              handleCloseModalTest();
+            }}
+            sx={{ width: 210, height: 56 }}
+            variant="contained"
+          >
+            Zjednodušená verze
+          </Button>
+        </Box>
+      </Modal>
+
       <Fab
         onClick={() => {
-          console.log("addTest");
+          handleOpenModalTest();
         }}
         sx={{ position: "fixed", bottom: 20, right: 20 }}
         color="primary"
@@ -329,6 +381,18 @@ const Patient = () => {
       >
         <AddIcon sx={{ mr: 1 }} />
         Přidat test
+      </Fab>
+
+      <Fab
+        onClick={() => {
+          navTest();
+        }}
+        sx={{ position: "fixed", bottom: 20, left: 20 }}
+        color="primary"
+        variant="extended"
+      >
+        <AddIcon sx={{ mr: 1 }} />
+        Test
       </Fab>
     </main>
   );
