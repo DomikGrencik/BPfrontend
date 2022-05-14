@@ -4,30 +4,45 @@ import { Button } from "@mui/material";
 import { apiFetch } from "../utils/apiFetch";
 import { useAppContext } from "../../App";
 import { useNavigate } from "react-router-dom";
+import { InputAdornment } from "@mui/material";
+import { IconButton } from "@mui/material";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const Login = () => {
-  const { setUserToken } = useAppContext();
+  const { setItem } = useAppContext();
+  const setUserToken = useCallback(
+    (token) => setItem("userToken", token),
+    [setItem]
+  );
+
   const loginData = useRef({ login: "", password: "" });
+
   const [formError, setFormError] = useState(false);
   const [formErrorMsg, setFormErrorMsg] = useState("");
+
+  const [showPassword, setShowPassword] = useState(false);
+
   const navigate = useNavigate();
 
   const submitForm = useCallback(
     async (event) => {
       event.preventDefault();
+
       const response = await apiFetch({
         route: "/login",
         method: "POST",
         body: loginData.current,
       });
-      if (response.status === 200) {
+
+      if (response) {
         setFormError(false);
         setFormErrorMsg("");
-        setUserToken(response.data?.token);
-        navigate("/splash", { replace: true });
+        setUserToken(response?.token);
+        navigate("/", { replace: true });
       } else {
         setFormError(true);
-        setFormErrorMsg(response.data?.message);
+        setFormErrorMsg(response?.message);
       }
     },
     [navigate, setUserToken]
@@ -46,6 +61,8 @@ const Login = () => {
           variant="outlined"
           error={formError}
           helperText={formErrorMsg}
+          required
+          className="page__width"
         />
         <TextField
           onChange={(event) =>
@@ -53,9 +70,23 @@ const Login = () => {
           }
           label="Heslo"
           variant="outlined"
-          type={"password"}
+          type={showPassword ? "text" : "password"}
           error={formError}
           helperText={formErrorMsg}
+          required
+          className="page__width"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPassword(!showPassword)}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <Button
           type="submit"

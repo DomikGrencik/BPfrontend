@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { CircularProgress } from "@mui/material";
 import { List } from "@mui/material";
 import { ListItem } from "@mui/material";
@@ -29,42 +29,44 @@ import { apiFetch } from "../utils/apiFetch";
 import { useAppContext } from "../../App";
 import { useNavigate } from "react-router-dom";
 import _ from "lodash";
-import { HTTP_CREATED, HTTP_OK } from "../utils/variables";
 
 const Patient = () => {
-  const { userToken } = useAppContext();
-  const { userId } = useAppContext();
-  const { setTestId } = useAppContext();
+  const { getItem, setItem, setTestId } = useAppContext();
+  const userToken = getItem("userToken");
+  const userId = getItem("userId");
+
   const [patient, setPatient] = useState({});
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [idTest, setIdTest] = useState("");
   const [isShortTestTF, setIsShortTestTF] = useState(false);
-  const navigate = useNavigate();
+
   const [openModal, setOpenModal] = useState(false);
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
+
   const [openModalTest, setOpenModalTest] = useState(false);
   const handleOpenModalTest = () => setOpenModalTest(true);
   const handleCloseModalTest = () => setOpenModalTest(false);
 
-  const [open, setOpen] = React.useState(false);
-  const anchorRef = React.useRef(null);
+  const [open, setOpen] = useState(false);
+  const anchorRef = useRef(null);
 
-  const handleToggle = () => {
+  const navigate = useNavigate();
+
+  function handleToggle() {
     setOpen((prevOpen) => !prevOpen);
-  };
+  }
 
-  const handleClose = (event) => {
+  const handleClose = () => {
     if (anchorRef.current && anchorRef.current.matches(":focus-within")) {
       return;
     }
     setOpen(false);
   };
 
-  // return focus to the button when we transitioned from !open -> open
-  const prevOpen = React.useRef(open);
-  React.useEffect(() => {
+  const prevOpen = useRef(open);
+  useEffect(() => {
     if (prevOpen.current === true && open === false) {
       anchorRef.current.focus();
     }
@@ -78,7 +80,7 @@ const Patient = () => {
 
   const getDx = useCallback(
     async (id_test) => {
-      const result = await apiFetch({
+      const response = await apiFetch({
         route: `/test_tasks/getTestPoints/${id_test}`,
         method: "GET",
         headers: {
@@ -86,15 +88,17 @@ const Patient = () => {
         },
       });
 
-      if (result.status === HTTP_OK) {
+      if (response) {
         let dx = 0;
-        result.data.forEach((element) => (dx += parseFloat(element.points)));
+        response.forEach((element) => (dx += parseFloat(element.points)));
         return dx;
       } else {
-        return 0;
+        setItem("userToken", "");
+        setItem("userId", "");
+        navigate("/", { replace: true });
       }
     },
-    [userToken]
+    [navigate, setItem, userToken]
   );
 
   useEffect(() => {
@@ -106,48 +110,68 @@ const Patient = () => {
           Authorization: `Bearer ${userToken}`,
         },
       });
-      setPatient(response.data);
+
+      if (response) {
+        setPatient(response);
+      } else {
+        setItem("userToken", "");
+        setItem("userId", "");
+        navigate("/", { replace: true });
+      }
     };
     fetchData();
-  }, [userId, userToken]);
+  }, [navigate, setItem, userId, userToken]);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
       const response = await apiFetch({
         route: `/tests/${userId}`,
         method: "GET",
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
+        setLoading,
       });
-      const tests = await Promise.all(
-        response.data.reverse().map(async (test) => {
-          test.dx = await getDx(test.id_test);
-          return test;
-        })
-      );
-      setTests(tests);
-      setLoading(false);
+
+      if (response) {
+        setLoading(true);
+        const tests = await Promise.all(
+          response.reverse().map(async (test) => {
+            test.dx = await getDx(test.id_test);
+            return test;
+          })
+        );
+        setTests(tests);
+        setLoading(false);
+      } else {
+        setItem("userToken", "");
+        setItem("userId", "");
+        navigate("/", { replace: true });
+      }
     };
     fetchData();
-  }, [getDx, userId, userToken]);
+  }, [getDx, navigate, setItem, userId, userToken]);
 
   const deleteTest = useCallback(async () => {
-    const result = await apiFetch({
+    const response = await apiFetch({
       route: `/tests/${idTest}`,
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${userToken}`,
       },
     });
-    if (result.status === HTTP_OK) {
+
+    if (response) {
       setTests(tests.filter((test) => test.id_test !== idTest));
+    } else {
+      setItem("userToken", "");
+      setItem("userId", "");
+      navigate("/", { replace: true });
     }
-  }, [idTest, tests, userToken]);
+  }, [idTest, navigate, setItem, tests, userToken]);
 
   const addTest = useCallback(async () => {
-    const result = await apiFetch({
+    const response = await apiFetch({
       route: "/tests",
       method: "POST",
       headers: {
@@ -156,12 +180,16 @@ const Patient = () => {
       },
       body: { id_patient: `${userId}` },
     });
-    if (result.status === HTTP_CREATED) {
-      setTestId(result.data.id_test);
-      console.log(result.data.id_test)
+
+    if (response) {
+      setTestId(response.id_test);
       navigate("/test", { replace: true });
+    } else {
+      setItem("userToken", "");
+      setItem("userId", "");
+      navigate("/", { replace: true });
     }
-  }, [navigate, setTestId, userId, userToken]);
+  }, [navigate, setItem, setTestId, userId, userToken]);
 
   return _.isEmpty(patient) ? (
     <div className="flex--grow flex flex--justify-center flex--align-center">
@@ -321,7 +349,7 @@ const Patient = () => {
       </Popper>
 
       <Modal open={openModal} onClose={handleCloseModal}>
-        <Box className="flex flex--column flex--justify-center flex--align-center patient__modal-delete page__form">
+        <Box className="flex flex--column flex--justify-center flex--align-center modal page__form">
           {isShortTestTF ? (
             <h4>Krátky test bude smazán</h4>
           ) : (
@@ -345,7 +373,7 @@ const Patient = () => {
       </Modal>
 
       <Modal open={openModalTest} onClose={handleCloseModalTest}>
-        <Box className="flex flex--column flex--justify-center flex--align-center patient__modal-test page__form">
+        <Box className="flex flex--column flex--justify-center flex--align-center modal page__form">
           <h4>Výběr testu</h4>
           <Button
             onClick={() => {

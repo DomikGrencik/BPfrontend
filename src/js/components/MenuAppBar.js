@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -8,10 +8,17 @@ import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
+import { apiFetch } from "../utils/apiFetch";
+import { useAppContext } from "../../App";
+import { useNavigate } from "react-router-dom";
 
-export default function MenuAppBar() {
-  const [auth] = useState(true);
+const MenuAppBar = () => {
+  const { getItem, setItem } = useAppContext();
+  const userToken = getItem("userToken");
+
   const [anchorEl, setAnchorEl] = useState(null);
+
+  const navigate = useNavigate();
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -21,32 +28,40 @@ export default function MenuAppBar() {
     setAnchorEl(null);
   };
 
+  const handleLogout = useCallback(async () => {
+    await apiFetch({
+      route: "/logout",
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
+
+    setItem("userToken", "");
+    setItem("userId", "");
+    navigate("/", { replace: true });
+  }, [navigate, setItem, userToken]);
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
+          {userToken && (
+            <IconButton
+              size="large"
+              edge="start"
+              color="inherit"
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Photos
+            3F
           </Typography>
-          {auth && (
+          {userToken && (
             <div>
-              <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleMenu}
-                color="inherit"
-              >
+              <IconButton size="large" onClick={handleMenu} color="inherit">
                 <AccountCircle />
               </IconButton>
               <Menu
@@ -64,8 +79,16 @@ export default function MenuAppBar() {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >
-                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
+                <MenuItem onClick={handleClose}>Profil</MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleLogout();
+                    handleClose();
+                  }}
+                  style={{ color: "red" }}
+                >
+                  Odhlásit se
+                </MenuItem>
               </Menu>
             </div>
           )}
@@ -73,4 +96,6 @@ export default function MenuAppBar() {
       </AppBar>
     </Box>
   );
-}
+};
+
+export default MenuAppBar;

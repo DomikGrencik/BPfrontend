@@ -4,12 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 
 const Splash = () => {
-  const { userToken } = useAppContext();
+  const { getItem } = useAppContext();
+  const userToken = getItem("userToken");
+
   const navigate = useNavigate();
 
   useEffect(() => {
     userToken
-      ? navigate("/", { replace: true })
+      ? navigate("/home", { replace: true })
       : navigate("/login", { replace: true });
   }, [navigate, userToken]);
 

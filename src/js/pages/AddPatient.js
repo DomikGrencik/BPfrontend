@@ -12,10 +12,11 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { apiFetch } from "../utils/apiFetch";
 import { useAppContext } from "../../App";
 import { useNavigate } from "react-router-dom";
-import { HTTP_CREATED } from "../utils/variables";
 
 const AddPatient = () => {
-  const { userToken } = useAppContext();
+  const { getItem, setItem } = useAppContext();
+  const userToken = getItem("userToken");
+
   const [therapists, setTherapists] = useState([]);
   const [patientData, setPatientData] = useState({
     name: "",
@@ -24,6 +25,7 @@ const AddPatient = () => {
     gender: "",
     id: "",
   });
+
   const navigate = useNavigate();
 
   const submitForm = useCallback(
@@ -40,19 +42,24 @@ const AddPatient = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + userToken,
+          Authorization: `Bearer ${userToken}`,
         },
         body: data,
       });
-      if (response.status === HTTP_CREATED) {
+
+      if (response) {
+        navigate("/home", { replace: true });
+      } else {
+        setItem("userToken", "");
+        setItem("userId", "");
         navigate("/", { replace: true });
       }
     },
-    [navigate, patientData, userToken]
+    [navigate, patientData, setItem, userToken]
   );
 
   const cancelAction = useCallback(() => {
-    navigate("/", { replace: true });
+    navigate("/home", { replace: true });
   }, [navigate]);
 
   useEffect(() => {
@@ -64,12 +71,19 @@ const AddPatient = () => {
           Authorization: `Bearer ${userToken}`,
         },
       });
-      if (Array.isArray(response.data)) {
-        setTherapists(response.data);
+
+      if (response) {
+        if (Array.isArray(response)) {
+          setTherapists(response);
+        }
+      } else {
+        setItem("userToken", "");
+        setItem("userId", "");
+        navigate("/", { replace: true });
       }
     };
     fetchData();
-  }, [userToken]);
+  }, [navigate, setItem, userToken]);
 
   return (
     <main className="page container--default flex--grow flex">
@@ -123,7 +137,7 @@ const AddPatient = () => {
             }
           >
             <MenuItem value={"M"}>Mužské</MenuItem>
-            <MenuItem value={"Z"}>Ženské</MenuItem>
+            <MenuItem value={"F"}>Ženské</MenuItem>
           </Select>
         </FormControl>
         <Autocomplete

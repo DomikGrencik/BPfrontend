@@ -11,19 +11,4 @@
   &__h3 {
     font-size: pxToRem(20);
   }
-
-  &__modal {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: pxToRem(260);
-    height: pxToRem(260);
-    padding: pxToRem(5);
-    text-align: center;
-    background-color: white;
-    border: 2px solid rgba(0, 0, 0, 0.6);
-    border-radius: pxToRem(5);
-    box-shadow: 24;
-  }
 }

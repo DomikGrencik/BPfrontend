@@ -4,17 +4,19 @@ import { Button } from "@mui/material";
 import { apiFetch } from "../utils/apiFetch";
 import { useAppContext } from "../../App";
 import { useNavigate } from "react-router-dom";
-import { HTTP_CREATED } from "../utils/variables";
 
 const AddTherapist = () => {
-  const { userToken } = useAppContext();
+  const { getItem, setItem } = useAppContext();
+  const userToken = getItem("userToken");
+
   const TherapistData = useRef({ name: "", surename: "", password: "" });
+
   const navigate = useNavigate();
-  console.log(userToken);
 
   const submitForm = useCallback(
     async (event) => {
       event.preventDefault();
+
       const response = await apiFetch({
         route: "/register",
         method: "POST",
@@ -24,15 +26,20 @@ const AddTherapist = () => {
         },
         body: TherapistData.current,
       });
-      if (response.status === HTTP_CREATED) {
+
+      if (response) {
+        navigate("/home", { replace: true });
+      } else {
+        setItem("userToken", "");
+        setItem("userId", "");
         navigate("/", { replace: true });
       }
     },
-    [navigate, userToken]
+    [navigate, setItem, userToken]
   );
 
   const cancelAction = useCallback(() => {
-    navigate("/", { replace: true });
+    navigate("/home", { replace: true });
   }, [navigate]);
 
   return (

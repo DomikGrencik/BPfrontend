@@ -14,21 +14,25 @@ import { InputAdornment } from "@mui/material";
 import { useAppContext } from "../../App";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/apiFetch";
-import { HTTP_OK } from "../utils/variables";
 
 const Home = () => {
-  const { userToken } = useAppContext();
-  const { setUserId } = useAppContext();
-  const navigate = useNavigate();
+  const { getItem, setItem } = useAppContext();
+  const userToken = getItem("userToken");
+  const setUserId = (id) => setItem("userId", id);
+
   const [input, setInput] = useState("");
   const [id, setId] = useState("");
   const [therapists, setTherapists] = useState([]);
   const [patients, setPatients] = useState([]);
   const [therapistTF, setTherapistTF] = useState(true);
+
   const [loading, setLoading] = useState(true);
+
   const [openModal, setOpenModal] = useState(false);
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
+
+  const navigate = useNavigate();
 
   const onChange = (event) => {
     const newValue = event.target.value;
@@ -53,57 +57,82 @@ const Home = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
       const responseT = await apiFetch({
         route: "/users",
         method: "GET",
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
+        setLoading,
       });
+
+      if (responseT) {
+        if (Array.isArray(responseT)) {
+          setTherapists(responseT);
+        }
+      } else {
+        setItem("userToken", "");
+        setItem("userId", "");
+        navigate("/", { replace: true });
+      }
+
       const responseP = await apiFetch({
         route: "/patients",
         method: "GET",
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
+        setLoading,
       });
-      setLoading(false);
-      if (Array.isArray(responseT.data)) {
-        setTherapists(responseT.data);
-      }
-      if (Array.isArray(responseP.data)) {
-        setPatients(responseP.data);
+
+      if (responseP) {
+        if (Array.isArray(responseP)) {
+          setPatients(responseP);
+        }
+      } else {
+        setItem("userToken", "");
+        setItem("userId", "");
+        navigate("/", { replace: true });
       }
     };
     fetchData();
-  }, [userToken]);
+  }, [navigate, setItem, userToken]);
 
   const deleteTherapist = useCallback(async () => {
-    const result = await apiFetch({
+    const response = await apiFetch({
       route: `/users/${id}`,
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${userToken}`,
       },
     });
-    if (result.status === HTTP_OK) {
+
+    if (response) {
       setTherapists(therapists.filter((therapist) => therapist.id !== id));
+    } else {
+      setItem("userToken", "");
+      setItem("userId", "");
+      navigate("/", { replace: true });
     }
-  }, [id, therapists, userToken]);
+  }, [id, navigate, setItem, therapists, userToken]);
 
   const deletePatient = useCallback(async () => {
-    const result = await apiFetch({
+    const response = await apiFetch({
       route: `/patients/${id}`,
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${userToken}`,
       },
     });
-    if (result.status === HTTP_OK) {
+
+    if (response) {
       setPatients(patients.filter((patient) => patient.id_patient !== id));
+    } else {
+      setItem("userToken", "");
+      setItem("userId", "");
+      navigate("/", { replace: true });
     }
-  }, [id, patients, userToken]);
+  }, [id, navigate, patients, setItem, userToken]);
 
   return loading ? (
     <div className="flex--grow flex flex--justify-center flex--align-center">
@@ -243,7 +272,7 @@ const Home = () => {
       </div>
 
       <Modal open={openModal} onClose={handleCloseModal}>
-        <Box className="flex flex--column flex--justify-center flex--align-center home__modal page__form">
+        <Box className="flex flex--column flex--justify-center flex--align-center modal page__form">
           {therapistTF ? (
             <h4>Logoped bude smazán</h4>
           ) : (
@@ -255,7 +284,7 @@ const Home = () => {
               therapistTF ? deleteTherapist() : deletePatient();
               handleCloseModal();
             }}
-            sx={{ width: 100}}
+            sx={{ width: 100 }}
             variant="outlined"
             size="small"
             color="error"

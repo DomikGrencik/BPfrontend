@@ -12,10 +12,10 @@
 @import "./layout/layout.scss";
 
 // pages
-@import "./pages/login.scss";
 @import "./pages/home.scss";
+@import "./pages/login.scss";
 @import "./pages/page.scss";
 @import "./pages/therapist.scss";
-@import "./pages/patient.scss";
 
 // components
+@import "./components/modal.scss";
