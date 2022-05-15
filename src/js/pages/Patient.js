@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { CircularProgress } from "@mui/material";
 import { List } from "@mui/material";
 import { ListItem } from "@mui/material";
@@ -11,16 +11,18 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Checkbox from "@mui/material/Checkbox";
+import { TextField } from "@mui/material";
 import { Modal } from "@mui/material";
 import { Button } from "@mui/material";
 import { Box } from "@mui/system";
-import { Popper } from "@mui/material";
-import { Grow } from "@mui/material";
-import { ClickAwayListener } from "@mui/material";
-import { MenuList } from "@mui/material";
-import { MenuItem } from "@mui/material";
-import { Divider } from "@mui/material";
 import { Fab } from "@mui/material";
+import { FormControl } from "@mui/material";
+import { Select } from "@mui/material";
+import { InputLabel } from "@mui/material";
+import { MenuItem } from "@mui/material";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -36,10 +38,13 @@ const Patient = () => {
   const userId = getItem("userId");
 
   const [patient, setPatient] = useState({});
+  const [newPatient, setNewPatient] = useState({});
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [idTest, setIdTest] = useState("");
   const [isShortTestTF, setIsShortTestTF] = useState(false);
+  const [isDeleteTF, setIsDeleteTF] = useState(false);
+  const [isOptionsTF, setIsOptionsTF] = useState(true);
 
   const [openModal, setOpenModal] = useState(false);
   const handleOpenModal = () => setOpenModal(true);
@@ -49,56 +54,30 @@ const Patient = () => {
   const handleOpenModalTest = () => setOpenModalTest(true);
   const handleCloseModalTest = () => setOpenModalTest(false);
 
-  const [open, setOpen] = useState(false);
-  const anchorRef = useRef(null);
+  const [openModalEdit, setOpenModalEdit] = useState(false);
+  const handleOpenModalEdit = () => setOpenModalEdit(true);
+  const handleCloseModalEdit = () => setOpenModalEdit(false);
 
   const navigate = useNavigate();
 
-  function handleToggle() {
-    setOpen((prevOpen) => !prevOpen);
-  }
+  const getDx = useCallback(async (id_test) => {
+    const response = await apiFetch({
+      route: `/test_tasks/getTestPoints/${id_test}`,
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
 
-  const handleClose = () => {
-    if (anchorRef.current && anchorRef.current.matches(":focus-within")) {
-      return;
+    if (response) {
+      let dx = 0;
+      response.forEach((element) => (dx += parseFloat(element.points)));
+      return dx;
+    } else {
+      setItem(["userToken", "userId"], "");
+      navigate("/", { replace: true });
     }
-    setOpen(false);
-  };
-
-  const prevOpen = useRef(open);
-  useEffect(() => {
-    if (prevOpen.current === true && open === false) {
-      anchorRef.current.focus();
-    }
-
-    prevOpen.current = open;
-  }, [open]);
-
-  const navTest = useCallback(() => {
-    navigate("/test", { replace: true });
-  }, [navigate]);
-
-  const getDx = useCallback(
-    async (id_test) => {
-      const response = await apiFetch({
-        route: `/test_tasks/getTestPoints/${id_test}`,
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-      });
-
-      if (response) {
-        let dx = 0;
-        response.forEach((element) => (dx += parseFloat(element.points)));
-        return dx;
-      } else {
-        setItem(["userToken", "userId"], "");
-        navigate("/", { replace: true });
-      }
-    },
-    [navigate, setItem, userToken]
-  );
+  }, [navigate, setItem, userToken]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -112,6 +91,7 @@ const Patient = () => {
 
       if (response) {
         setPatient(response);
+        setNewPatient(response);
       } else {
         setItem(["userToken", "userId"], "");
         navigate("/", { replace: true });
@@ -121,6 +101,7 @@ const Patient = () => {
   }, [navigate, setItem, userId, userToken]);
 
   useEffect(() => {
+    console.log("getTests");
     const fetchData = async () => {
       const response = await apiFetch({
         route: `/tests/${userId}`,
@@ -188,6 +169,31 @@ const Patient = () => {
     }
   }, [navigate, setItem, setTestId, userId, userToken]);
 
+  const changeData = useCallback(
+    async (event) => {
+      event.preventDefault();
+
+      const response = await apiFetch({
+        route: `/patients/${userId}`,
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: newPatient,
+      });
+
+      if (response) {
+        setPatient(newPatient);
+        handleCloseModalEdit();
+      } else {
+        setItem(["userToken", "userId"], "");
+        navigate("/", { replace: true });
+      }
+    },
+    [navigate, newPatient, setItem, userId, userToken]
+  );
+
   return _.isEmpty(patient) ? (
     <div className="flex--grow flex flex--justify-center flex--align-center">
       <CircularProgress />
@@ -200,10 +206,9 @@ const Patient = () => {
             sx={{ display: "block" }}
             secondaryAction={
               <IconButton
-                // onClick={() => {
-                //   handleOpen();
-                //   setIsChangeName(true);
-                // }}
+                onClick={() => {
+                  handleOpenModalEdit();
+                }}
                 edge="end"
               >
                 <EditIcon />
@@ -283,10 +288,10 @@ const Patient = () => {
                         align="right"
                       >
                         <IconButton
-                          ref={anchorRef}
                           onClick={() => {
-                            handleToggle();
+                            handleOpenModal();
                             setIdTest(row.id_test);
+                            setTestId(row.id_test);
                             setIsShortTestTF(false);
                           }}
                         >
@@ -302,70 +307,87 @@ const Patient = () => {
         )}
       </div>
 
-      <Popper
-        open={open}
-        anchorEl={anchorRef.current}
-        role={undefined}
-        placement="bottom-start"
-        transition
-        disablePortal
+      <Modal
+        open={openModal}
+        onClose={() => {
+          handleCloseModal();
+          setIsOptionsTF(true);
+          setIsDeleteTF(false);
+        }}
       >
-        {({ TransitionProps, placement }) => (
-          <Grow
-            {...TransitionProps}
-            style={{
-              transformOrigin:
-                placement === "bottom-start" ? "left top" : "left bottom",
-            }}
-          >
-            <Paper sx={{ backgroundColor: "rgba(235, 235, 235, 1)" }}>
-              <ClickAwayListener onClickAway={handleClose}>
-                <MenuList autoFocusItem={open}>
-                  <MenuItem
-                    onClick={() => {
-                      handleClose();
-                      console.log("upravit");
-                    }}
-                  >
-                    Upravit
-                  </MenuItem>
-                  <Divider />
-                  <MenuItem
-                    onClick={() => {
-                      handleClose();
-                      handleOpenModal();
-                    }}
-                  >
-                    Smazat
-                  </MenuItem>
-                </MenuList>
-              </ClickAwayListener>
-            </Paper>
-          </Grow>
-        )}
-      </Popper>
-
-      <Modal open={openModal} onClose={handleCloseModal}>
         <Box className="flex flex--column flex--justify-center flex--align-center modal page__form">
-          {isShortTestTF ? (
-            <h4>Krátky test bude smazán</h4>
-          ) : (
-            <h4>Test bude smazán</h4>
+          {isOptionsTF && (
+            <>
+              <Button
+                onClick={() => {
+                  isShortTestTF
+                    ? console.log("editShortTest")
+                    : navigate("/test", { replace: true });
+                  handleCloseModal();
+                }}
+                sx={{ width: 210, height: 56 }}
+                variant="outlined"
+                color="primary"
+                startIcon={<EditIcon />}
+              >
+                Upravit test
+              </Button>
+              <Button
+                onClick={() => {
+                  setIsDeleteTF(true);
+                  setIsOptionsTF(false);
+                }}
+                sx={{ width: 210, height: 56 }}
+                variant="outlined"
+                color="error"
+                startIcon={<DeleteIcon />}
+              >
+                Smazat
+              </Button>
+            </>
           )}
+          {isDeleteTF && (
+            <>
+              {isShortTestTF ? (
+                <h4>Opravdu chcete smazat krátký test?</h4>
+              ) : (
+                <h4>Opravdu chcete smazat test?</h4>
+              )}
 
-          <Button
-            onClick={() => {
-              isShortTestTF ? console.log("deleteShortTest") : deleteTest();
-              handleCloseModal();
-            }}
-            sx={{ width: 100 }}
-            variant="outlined"
-            size="small"
-            color="error"
-            startIcon={<DeleteIcon />}
-          >
-            Smazat
-          </Button>
+              <div className="flex flex--justify-space-between page__form">
+                <Button
+                  onClick={() => {
+                    setIsDeleteTF(false);
+                    setIsOptionsTF(true);
+                    handleCloseModal();
+                  }}
+                  sx={{ width: 100 }}
+                  variant="outlined"
+                  size="small"
+                  color="primary"
+                >
+                  Zrušit
+                </Button>
+                <Button
+                  onClick={() => {
+                    isShortTestTF
+                      ? console.log("deleteShortTest")
+                      : deleteTest();
+                    setIsDeleteTF(false);
+                    setIsOptionsTF(true);
+                    handleCloseModal();
+                  }}
+                  sx={{ width: 100 }}
+                  variant="outlined"
+                  size="small"
+                  color="error"
+                  startIcon={<DeleteIcon />}
+                >
+                  Smazat
+                </Button>
+              </div>
+            </>
+          )}
         </Box>
       </Modal>
 
@@ -374,7 +396,6 @@ const Patient = () => {
           <h4>Výběr testu</h4>
           <Button
             onClick={() => {
-              console.log("test");
               handleCloseModalTest();
               addTest();
             }}
@@ -385,7 +406,6 @@ const Patient = () => {
           </Button>
           <Button
             onClick={() => {
-              console.log("short_test");
               handleCloseModalTest();
             }}
             sx={{ width: 210, height: 56 }}
@@ -393,6 +413,93 @@ const Patient = () => {
           >
             Zjednodušená verze
           </Button>
+        </Box>
+      </Modal>
+
+      <Modal open={openModalEdit} onClose={handleCloseModalEdit}>
+        <Box className="flex flex--column flex--justify-center flex--align-center modal page__form">
+          <form
+            onSubmit={changeData}
+            className="flex flex--column flex--justify-center flex--align-center page__form"
+          >
+            <h4>Změnit údaje pacienta</h4>
+            <TextField
+              onChange={(event) =>
+                setNewPatient({ ...newPatient, name: event.target.value })
+              }
+              label="Jméno"
+              variant="outlined"
+              value={newPatient.name}
+            />
+            <TextField
+              onChange={(event) =>
+                setNewPatient({
+                  ...newPatient,
+                  surename: event.target.value,
+                })
+              }
+              label="Příjmení"
+              variant="outlined"
+              value={newPatient.surename}
+            />
+
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DatePicker
+                views={["year"]}
+                label="Rok narození"
+                value={new Date(newPatient.birth_year, 0)}
+                maxDate={new Date()}
+                onChange={(newValue) =>
+                  setNewPatient({
+                    ...newPatient,
+                    birth_year: new Date(newValue).getFullYear(),
+                  })
+                }
+                renderInput={(params) => (
+                  <TextField {...params} helperText={null} />
+                )}
+              />
+            </LocalizationProvider>
+            <FormControl className="page__width">
+              <InputLabel>Pohlaví</InputLabel>
+              <Select
+                label="Pohlaví"
+                value={newPatient.gender}
+                onChange={(event) =>
+                  setNewPatient({
+                    ...newPatient,
+                    gender: event.target.value,
+                  })
+                }
+              >
+                <MenuItem value={"M"}>Mužské</MenuItem>
+                <MenuItem value={"F"}>Ženské</MenuItem>
+              </Select>
+            </FormControl>
+            <div className="flex flex--justify-space-between page__form">
+              <Button
+                color="error"
+                type="button"
+                sx={{ width: 100 }}
+                variant="outlined"
+                size="small"
+                onClick={() => {
+                  setNewPatient(patient);
+                  handleCloseModalEdit();
+                }}
+              >
+                Zrušit
+              </Button>
+              <Button
+                type="submit"
+                sx={{ width: 100 }}
+                variant="outlined"
+                size="small"
+              >
+                Změnit
+              </Button>
+            </div>
+          </form>
         </Box>
       </Modal>
 
@@ -410,7 +517,7 @@ const Patient = () => {
 
       <Fab
         onClick={() => {
-          navTest();
+          navigate("/test", { replace: true });
         }}
         sx={{ position: "fixed", bottom: 20, left: 20 }}
         color="primary"

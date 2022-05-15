@@ -50,7 +50,7 @@ const App = () => {
       </AppContext.Provider>
     );
   } else {
-    return <>Váš prohlížeč nepodporuje localStorage.</>;
+    return <>Nastala neočakávaná chyba.</>;
   }
 };
 

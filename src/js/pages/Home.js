@@ -8,8 +8,10 @@ import { TextField } from "@mui/material";
 import { Button } from "@mui/material";
 import { Modal } from "@mui/material";
 import { Box } from "@mui/system";
+import { Fab } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
 import { InputAdornment } from "@mui/material";
 import { useAppContext } from "../../App";
 import { useNavigate } from "react-router-dom";
@@ -38,22 +40,6 @@ const Home = () => {
     const newValue = event.target.value;
     setInput(newValue);
   };
-
-  const navTherapist = useCallback(() => {
-    navigate("/therapist", { replace: true });
-  }, [navigate]);
-
-  const navPatient = useCallback(() => {
-    navigate("/patient", { replace: true });
-  }, [navigate]);
-
-  const navAddTherapist = useCallback(() => {
-    navigate("/addtherapist", { replace: true });
-  }, [navigate]);
-
-  const navAddPatient = useCallback(() => {
-    navigate("/addpatient", { replace: true });
-  }, [navigate]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -184,7 +170,7 @@ const Home = () => {
                   >
                     <ListItemButton
                       onClick={() => {
-                        navTherapist();
+                        navigate("/therapist", { replace: true });
                         setUserId(therapist.id);
                         setTherapistTF(true);
                       }}
@@ -234,7 +220,7 @@ const Home = () => {
                   >
                     <ListItemButton
                       onClick={() => {
-                        navPatient();
+                        navigate("/patient", { replace: true });
                         setUserId(patient.id_patient);
                         setTherapistTF(false);
                       }}
@@ -248,26 +234,30 @@ const Home = () => {
               );
             })}
           </List>
-
-          <div className="page__width home__sticky home__margin flex flex--justify-space-between">
-            <Button
-              onClick={navAddTherapist}
-              sx={{ width: 100, height: 56 }}
-              variant="contained"
-              color="success"
-            >
-              Přidat logopeda
-            </Button>
-            <Button
-              onClick={navAddPatient}
-              sx={{ width: 100, height: 56 }}
-              variant="contained"
-            >
-              Přidat pacienta
-            </Button>
-          </div>
         </div>
       </div>
+      <Fab
+        onClick={() => {
+          navigate("/addtherapist", { replace: true });
+        }}
+        sx={{ position: "fixed", bottom: 20, left: 20 }}
+        color="primary"
+        variant="extended"
+      >
+        <AddIcon sx={{ mr: 1 }} />
+        logoped
+      </Fab>
+      <Fab
+        onClick={() => {
+          navigate("/addpatient", { replace: true });
+        }}
+        sx={{ position: "fixed", bottom: 20, right: 20 }}
+        color="primary"
+        variant="extended"
+      >
+        <AddIcon sx={{ mr: 1 }} />
+        pacient
+      </Fab>
 
       <Modal open={openModal} onClose={handleCloseModal}>
         <Box className="flex flex--column flex--justify-center flex--align-center modal page__form">

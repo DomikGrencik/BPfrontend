@@ -1,6 +1,8 @@
 import React, { useRef, useCallback } from "react";
 import { TextField } from "@mui/material";
-import { Button } from "@mui/material";
+import { Fab } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from '@mui/icons-material/Close';
 import { apiFetch } from "../utils/apiFetch";
 import { useAppContext } from "../../App";
 import { useNavigate } from "react-router-dom";
@@ -37,10 +39,6 @@ const AddTherapist = () => {
     [navigate, setItem, userToken]
   );
 
-  const cancelAction = useCallback(() => {
-    navigate("/home", { replace: true });
-  }, [navigate]);
-
   return (
     <main className="page container--default flex--grow flex">
       <form
@@ -75,23 +73,26 @@ const AddTherapist = () => {
           helperText={"minimálne 8 znaků"}
           inputProps={{ minLength: 8 }}
         />
-        <div className="page__width flex flex--justify-space-between">
-          <Button
-            onClick={cancelAction}
-            sx={{ width: 100, height: 56 }}
-            variant="contained"
-            color="error"
-          >
-            Zrušit
-          </Button>
-          <Button
-            type="submit"
-            sx={{ width: 100, height: 56 }}
-            variant="contained"
-          >
-            Přidat
-          </Button>
-        </div>
+        <Fab
+          onClick={() => {
+            navigate("/home", { replace: true });
+          }}
+          sx={{ position: "fixed", bottom: 20, left: 20 }}
+          color="error"
+          variant="extended"
+        >
+          <CloseIcon sx={{ mr: 1 }} />
+          zrušit
+        </Fab>
+        <Fab
+          type="submit"
+          sx={{ position: "fixed", bottom: 20, right: 20 }}
+          color="primary"
+          variant="extended"
+        >
+          <AddIcon sx={{ mr: 1 }} />
+          přidat
+        </Fab>
       </form>
     </main>
   );
