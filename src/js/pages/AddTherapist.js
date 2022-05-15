@@ -2,13 +2,13 @@ import React, { useRef, useCallback } from "react";
 import { TextField } from "@mui/material";
 import { Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
 import { apiFetch } from "../utils/apiFetch";
 import { useAppContext } from "../../App";
 import { useNavigate } from "react-router-dom";
 
 const AddTherapist = () => {
-  const { getItem, setItem } = useAppContext();
+  const { initialize, getItem } = useAppContext();
   const userToken = getItem("userToken");
 
   const TherapistData = useRef({ name: "", surename: "", password: "" });
@@ -32,11 +32,11 @@ const AddTherapist = () => {
       if (response) {
         navigate("/home", { replace: true });
       } else {
-        setItem(["userToken", "userId"], "");
+        initialize();
         navigate("/", { replace: true });
       }
     },
-    [navigate, setItem, userToken]
+    [initialize, navigate, userToken]
   );
 
   return (

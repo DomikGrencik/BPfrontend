@@ -33,7 +33,7 @@ import { useNavigate } from "react-router-dom";
 import _ from "lodash";
 
 const Patient = () => {
-  const { getItem, setItem, setTestId } = useAppContext();
+  const { initialize, getItem, setTestId } = useAppContext();
   const userToken = getItem("userToken");
   const userId = getItem("userId");
 
@@ -60,24 +60,27 @@ const Patient = () => {
 
   const navigate = useNavigate();
 
-  const getDx = useCallback(async (id_test) => {
-    const response = await apiFetch({
-      route: `/test_tasks/getTestPoints/${id_test}`,
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${userToken}`,
-      },
-    });
+  const getDx = useCallback(
+    async (id_test) => {
+      const response = await apiFetch({
+        route: `/test_tasks/getTestPoints/${id_test}`,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
 
-    if (response) {
-      let dx = 0;
-      response.forEach((element) => (dx += parseFloat(element.points)));
-      return dx;
-    } else {
-      setItem(["userToken", "userId"], "");
-      navigate("/", { replace: true });
-    }
-  }, [navigate, setItem, userToken]);
+      if (response) {
+        let dx = 0;
+        response.forEach((element) => (dx += parseFloat(element.points)));
+        return dx;
+      } else {
+        initialize();
+        navigate("/", { replace: true });
+      }
+    },
+    [initialize, navigate, userToken]
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -93,12 +96,12 @@ const Patient = () => {
         setPatient(response);
         setNewPatient(response);
       } else {
-        setItem(["userToken", "userId"], "");
+        initialize();
         navigate("/", { replace: true });
       }
     };
     fetchData();
-  }, [navigate, setItem, userId, userToken]);
+  }, [initialize, navigate, userId, userToken]);
 
   useEffect(() => {
     console.log("getTests");
@@ -123,12 +126,12 @@ const Patient = () => {
         setTests(tests);
         setLoading(false);
       } else {
-        setItem(["userToken", "userId"], "");
+        initialize();
         navigate("/", { replace: true });
       }
     };
     fetchData();
-  }, [getDx, navigate, setItem, userId, userToken]);
+  }, [getDx, initialize, navigate, userId, userToken]);
 
   const deleteTest = useCallback(async () => {
     const response = await apiFetch({
@@ -142,11 +145,10 @@ const Patient = () => {
     if (response) {
       setTests(tests.filter((test) => test.id_test !== idTest));
     } else {
-      setItem("userToken", "");
-      setItem("userId", "");
+      initialize();
       navigate("/", { replace: true });
     }
-  }, [idTest, navigate, setItem, tests, userToken]);
+  }, [idTest, initialize, navigate, tests, userToken]);
 
   const addTest = useCallback(async () => {
     const response = await apiFetch({
@@ -163,11 +165,10 @@ const Patient = () => {
       setTestId(response.id_test);
       navigate("/test", { replace: true });
     } else {
-      setItem("userToken", "");
-      setItem("userId", "");
+      initialize();
       navigate("/", { replace: true });
     }
-  }, [navigate, setItem, setTestId, userId, userToken]);
+  }, [initialize, navigate, setTestId, userId, userToken]);
 
   const changeData = useCallback(
     async (event) => {
@@ -187,11 +188,11 @@ const Patient = () => {
         setPatient(newPatient);
         handleCloseModalEdit();
       } else {
-        setItem(["userToken", "userId"], "");
+        initialize();
         navigate("/", { replace: true });
       }
     },
-    [navigate, newPatient, setItem, userId, userToken]
+    [initialize, navigate, newPatient, userId, userToken]
   );
 
   return _.isEmpty(patient) ? (

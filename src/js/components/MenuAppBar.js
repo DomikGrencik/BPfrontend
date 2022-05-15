@@ -13,7 +13,7 @@ import { useAppContext } from "../../App";
 import { useNavigate } from "react-router-dom";
 
 const MenuAppBar = () => {
-  const { getItem, setItem } = useAppContext();
+  const { initialize, getItem } = useAppContext();
   const userToken = getItem("userToken");
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -37,10 +37,9 @@ const MenuAppBar = () => {
       },
     });
 
-    setItem("userToken", "");
-    setItem("userId", "");
+    initialize();
     navigate("/", { replace: true });
-  }, [navigate, setItem, userToken]);
+  }, [initialize, navigate, userToken]);
 
   return (
     <Box sx={{ flexGrow: 1 }}>

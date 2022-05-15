@@ -18,7 +18,7 @@ import _ from "lodash";
 import { useNavigate } from "react-router-dom";
 
 const Therapist = () => {
-  const { getItem, setItem } = useAppContext();
+  const { initialize, getItem } = useAppContext();
   const userToken = getItem("userToken");
   const userId = getItem("userId");
 
@@ -83,12 +83,12 @@ const Therapist = () => {
       if (response) {
         setTherapist(response);
       } else {
-        setItem(["userToken", "userId"], "");
+        initialize();
         navigate("/", { replace: true });
       }
     };
     fetchData();
-  }, [navigate, setItem, userId, userToken]);
+  }, [initialize, navigate, userId, userToken]);
 
   const changeName = useCallback(
     async (event) => {
@@ -107,11 +107,18 @@ const Therapist = () => {
       if (response) {
         handleClose();
       } else {
-        setItem(["userToken", "userId"], "");
+        initialize();
         navigate("/", { replace: true });
       }
     },
-    [navigate, setItem, therapist.name, therapist.surename, userId, userToken]
+    [
+      initialize,
+      navigate,
+      therapist.name,
+      therapist.surename,
+      userId,
+      userToken,
+    ]
   );
 
   const changePassword = useCallback(
@@ -131,11 +138,11 @@ const Therapist = () => {
       if (response) {
         handleClose();
       } else {
-        setItem(["userToken", "userId"], "");
+        initialize();
         navigate("/", { replace: true });
       }
     },
-    [navigate, passwordProps.password, setItem, userId, userToken]
+    [initialize, navigate, passwordProps.password, userId, userToken]
   );
 
   return loading ? (

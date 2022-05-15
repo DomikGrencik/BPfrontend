@@ -17,15 +17,20 @@ const AppContext = createContext();
 export const useAppContext = () => useContext(AppContext);
 
 const App = () => {
-  const storage = useLocalStorage(STORAGE_KEY, { userToken: "", userId: "" });
+  const storage = useLocalStorage(STORAGE_KEY, {
+    userToken: "",
+    userId: "",
+    isAdmin: "",
+  });
   const [testId, setTestId] = useState("");
 
   if (storage) {
-    const [getItem, setItem] = storage;
+    const [initialize, getItem, setItem] = storage;
 
     return (
       <AppContext.Provider
         value={{
+          initialize,
           getItem,
           setItem,
           testId,

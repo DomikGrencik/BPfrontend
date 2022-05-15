@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/apiFetch";
 
 const Home = () => {
-  const { getItem, setItem } = useAppContext();
+  const { initialize, getItem, setItem } = useAppContext();
   const userToken = getItem("userToken");
   const setUserId = (id) => setItem("userId", id);
 
@@ -57,7 +57,7 @@ const Home = () => {
           setTherapists(responseT);
         }
       } else {
-        setItem(["userToken", "userId"], "");
+        initialize();
         navigate("/", { replace: true });
       }
 
@@ -75,12 +75,12 @@ const Home = () => {
           setPatients(responseP);
         }
       } else {
-        setItem(["userToken", "userId"], "");
+        initialize();
         navigate("/", { replace: true });
       }
     };
     fetchData();
-  }, [navigate, setItem, userToken]);
+  }, [initialize, navigate, userToken]);
 
   const deleteTherapist = useCallback(async () => {
     const response = await apiFetch({
@@ -94,11 +94,10 @@ const Home = () => {
     if (response) {
       setTherapists(therapists.filter((therapist) => therapist.id !== id));
     } else {
-      setItem("userToken", "");
-      setItem("userId", "");
+      initialize();
       navigate("/", { replace: true });
     }
-  }, [id, navigate, setItem, therapists, userToken]);
+  }, [id, initialize, navigate, therapists, userToken]);
 
   const deletePatient = useCallback(async () => {
     const response = await apiFetch({
@@ -112,11 +111,10 @@ const Home = () => {
     if (response) {
       setPatients(patients.filter((patient) => patient.id_patient !== id));
     } else {
-      setItem("userToken", "");
-      setItem("userId", "");
+      initialize();
       navigate("/", { replace: true });
     }
-  }, [id, navigate, patients, setItem, userToken]);
+  }, [id, initialize, navigate, patients, userToken]);
 
   return loading ? (
     <div className="flex--grow flex flex--justify-center flex--align-center">

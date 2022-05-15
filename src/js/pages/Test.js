@@ -17,7 +17,7 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import { apiFetch } from "../utils/apiFetch";
 
 const Test = () => {
-  const { getItem, setItem, testId } = useAppContext();
+  const { initialize, getItem, testId } = useAppContext();
   const userToken = getItem("userToken");
 
   const [tasks, setTasks] = useState([]);
@@ -50,12 +50,12 @@ const Test = () => {
           setTasks(response);
         }
       } else {
-        setItem(["userToken", "userId"], "");
+        initialize();
         navigate("/", { replace: true });
       }
     };
     fetchData();
-  }, [navigate, setItem, userToken]);
+  }, [initialize, navigate, userToken]);
 
   useEffect(() => {
     setShowBackButton(idTask > 0);
@@ -85,12 +85,12 @@ const Test = () => {
           setShouldUpdate(true);
         }
       } else {
-        setItem(["userToken", "userId"], "");
+        initialize();
         navigate("/", { replace: true });
       }
     };
     fetchData();
-  }, [idTask, navigate, setItem, testId, userToken]);
+  }, [idTask, initialize, navigate, testId, userToken]);
 
   const handleChange = useCallback(
     async (event) => {
@@ -114,11 +114,11 @@ const Test = () => {
         setShouldUpdate(true);
         setTaskPoints(points);
       } else {
-        setItem(["userToken", "userId"], "");
+        initialize();
         navigate("/", { replace: true });
       }
     },
-    [idTask, navigate, setItem, shouldUpdate, testId, userToken]
+    [idTask, initialize, navigate, shouldUpdate, testId, userToken]
   );
 
   return loading ? (

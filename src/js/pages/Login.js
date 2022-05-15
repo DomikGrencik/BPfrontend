@@ -15,6 +15,10 @@ const Login = () => {
     (token) => setItem("userToken", token),
     [setItem]
   );
+  const setIsAdmin = useCallback(
+    (isAdmin) => setItem("isAdmin", isAdmin),
+    [setItem]
+  );
 
   const loginData = useRef({ login: "", password: "" });
 
@@ -38,14 +42,25 @@ const Login = () => {
       if (response) {
         setFormError(false);
         setFormErrorMsg("");
-        setUserToken(response?.token);
+        setUserToken(response.token);
+
+        const user = await apiFetch({
+          route: "/profile",
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${response.token}`,
+          },
+        });
+
+        setIsAdmin(user.data.role.includes("admin"));
+
         navigate("/", { replace: true });
       } else {
         setFormError(true);
         setFormErrorMsg(response?.message);
       }
     },
-    [navigate, setUserToken]
+    [navigate, setIsAdmin, setUserToken]
   );
 
   return (

@@ -7,7 +7,7 @@ import { MenuItem } from "@mui/material";
 import { Autocomplete } from "@mui/material";
 import { Fab } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import CloseIcon from '@mui/icons-material/Close';
+import CloseIcon from "@mui/icons-material/Close";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -16,7 +16,7 @@ import { useAppContext } from "../../App";
 import { useNavigate } from "react-router-dom";
 
 const AddPatient = () => {
-  const { getItem, setItem } = useAppContext();
+  const { initialize, getItem } = useAppContext();
   const userToken = getItem("userToken");
 
   const [therapists, setTherapists] = useState([]);
@@ -52,11 +52,11 @@ const AddPatient = () => {
       if (response) {
         navigate("/home", { replace: true });
       } else {
-        setItem(["userToken", "userId"], "");
+        initialize();
         navigate("/", { replace: true });
       }
     },
-    [navigate, patientData, setItem, userToken]
+    [initialize, navigate, patientData, userToken]
   );
 
   useEffect(() => {
@@ -74,12 +74,12 @@ const AddPatient = () => {
           setTherapists(response);
         }
       } else {
-        setItem(["userToken", "userId"], "");
+        initialize();
         navigate("/", { replace: true });
       }
     };
     fetchData();
-  }, [navigate, setItem, userToken]);
+  }, [initialize, navigate, userToken]);
 
   return (
     <main className="page container--default flex--grow flex">

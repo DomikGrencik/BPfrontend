@@ -19,9 +19,8 @@ export const useLocalStorage = (key, object) => {
       try {
         const object = JSON.parse(localStorage.getItem(key));
         if (Array.isArray(prop)) {
-          prop.forEach((p) =>
-            localStorage.setItem(key, JSON.stringify({ ...object, [p]: value }))
-          );
+          prop.forEach((p) => (object[p] = value));
+          localStorage.setItem(key, JSON.stringify(object));
         } else {
           localStorage.setItem(
             key,
@@ -36,14 +35,18 @@ export const useLocalStorage = (key, object) => {
     [key]
   );
 
-  try {
-    if (!localStorage.getItem(key)) {
+  const initialize = useCallback(() => {
+    try {
       localStorage.setItem(key, JSON.stringify(object));
+    } catch (error) {
+      console.log(error);
+      return null;
     }
-  } catch (error) {
-    console.log(error);
-    return null;
+  }, [key, object]);
+
+  if (!localStorage.getItem(key)) {
+    initialize();
   }
 
-  return [getItem, setItem];
+  return [initialize, getItem, setItem];
 };
