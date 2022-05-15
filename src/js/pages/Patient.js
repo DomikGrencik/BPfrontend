@@ -93,8 +93,7 @@ const Patient = () => {
         response.forEach((element) => (dx += parseFloat(element.points)));
         return dx;
       } else {
-        setItem("userToken", "");
-        setItem("userId", "");
+        setItem(["userToken", "userId"], "");
         navigate("/", { replace: true });
       }
     },
@@ -114,8 +113,7 @@ const Patient = () => {
       if (response) {
         setPatient(response);
       } else {
-        setItem("userToken", "");
-        setItem("userId", "");
+        setItem(["userToken", "userId"], "");
         navigate("/", { replace: true });
       }
     };
@@ -144,8 +142,7 @@ const Patient = () => {
         setTests(tests);
         setLoading(false);
       } else {
-        setItem("userToken", "");
-        setItem("userId", "");
+        setItem(["userToken", "userId"], "");
         navigate("/", { replace: true });
       }
     };

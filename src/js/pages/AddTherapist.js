@@ -30,8 +30,7 @@ const AddTherapist = () => {
       if (response) {
         navigate("/home", { replace: true });
       } else {
-        setItem("userToken", "");
-        setItem("userId", "");
+        setItem(["userToken", "userId"], "");
         navigate("/", { replace: true });
       }
     },

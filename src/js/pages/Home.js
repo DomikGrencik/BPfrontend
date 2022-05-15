@@ -71,8 +71,7 @@ const Home = () => {
           setTherapists(responseT);
         }
       } else {
-        setItem("userToken", "");
-        setItem("userId", "");
+        setItem(["userToken", "userId"], "");
         navigate("/", { replace: true });
       }
 
@@ -90,8 +89,7 @@ const Home = () => {
           setPatients(responseP);
         }
       } else {
-        setItem("userToken", "");
-        setItem("userId", "");
+        setItem(["userToken", "userId"], "");
         navigate("/", { replace: true });
       }
     };

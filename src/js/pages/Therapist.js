@@ -83,8 +83,7 @@ const Therapist = () => {
       if (response) {
         setTherapist(response);
       } else {
-        setItem("userToken", "");
-        setItem("userId", "");
+        setItem(["userToken", "userId"], "");
         navigate("/", { replace: true });
       }
     };
@@ -108,8 +107,7 @@ const Therapist = () => {
       if (response) {
         handleClose();
       } else {
-        setItem("userToken", "");
-        setItem("userId", "");
+        setItem(["userToken", "userId"], "");
         navigate("/", { replace: true });
       }
     },
@@ -133,8 +131,7 @@ const Therapist = () => {
       if (response) {
         handleClose();
       } else {
-        setItem("userToken", "");
-        setItem("userId", "");
+        setItem(["userToken", "userId"], "");
         navigate("/", { replace: true });
       }
     },

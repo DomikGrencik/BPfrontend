@@ -50,8 +50,7 @@ const AddPatient = () => {
       if (response) {
         navigate("/home", { replace: true });
       } else {
-        setItem("userToken", "");
-        setItem("userId", "");
+        setItem(["userToken", "userId"], "");
         navigate("/", { replace: true });
       }
     },
@@ -77,8 +76,7 @@ const AddPatient = () => {
           setTherapists(response);
         }
       } else {
-        setItem("userToken", "");
-        setItem("userId", "");
+        setItem(["userToken", "userId"], "");
         navigate("/", { replace: true });
       }
     };

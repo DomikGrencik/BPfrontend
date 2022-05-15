@@ -17,12 +17,12 @@ const Test = () => {
   const [showNextButton, setShowNextButton] = useState(true);
   const [loading, setLoading] = useState(true);
 
-  const { navigate } = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       const response = await apiFetch({
-        route: "/tasks/getTestTasks",
+        route: "/tasks/getTestTask",
         method: "GET",
         headers: {
           Authorization: `Bearer ${userToken}`,
@@ -35,8 +35,7 @@ const Test = () => {
           setTasks(response);
         }
       } else {
-        setItem("userToken", "");
-        setItem("userId", "");
+        setItem(["userToken", "userId"], "");
         navigate("/", { replace: true });
       }
     };
@@ -48,6 +47,7 @@ const Test = () => {
     idTask === 44 ? setShowNextButton(false) : setShowNextButton(true);
   }, [idTask]);
 
+
   return loading ? (
     <div className="flex--grow flex flex--justify-center flex--align-center">
       <CircularProgress />
@@ -56,8 +56,14 @@ const Test = () => {
     tasks.length && (
       <main className="page container--default flex--grow flex">
         <div className="page__form flex--grow flex flex--column flex--align-center">
-          <h2>Test</h2>
-          <h3>{`${tasks[idTask].id_task} ${tasks[idTask].category}`}</h3>
+          <h2>{`${tasks[idTask].id_task} ${tasks[idTask].category}`}</h2>
+          <div className="page__width2">
+            <h3>{tasks[idTask].subcategory}</h3>
+            <h3 style={{ marginTop: 5 }}>{tasks[idTask].title}</h3>
+            <div style={{ marginTop: 5 }}>{tasks[idTask].description}</div>
+            <div style={{ marginTop: 5 }}>{tasks[idTask].evaluation}</div>
+          </div>
+          
         </div>
         {showNextButton && (
           <Fab

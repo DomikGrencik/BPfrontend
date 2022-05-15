@@ -21,7 +21,13 @@ export const useLocalStorage = (key, object) => {
   const setItem = (prop, value) => {
     try {
       const object = JSON.parse(localStorage.getItem(key));
-      localStorage.setItem(key, JSON.stringify({ ...object, [prop]: value }));
+      if (Array.isArray(prop)) {
+        prop.forEach((p) =>
+          localStorage.setItem(key, JSON.stringify({ ...object, [p]: value }))
+        );
+      } else {
+        localStorage.setItem(key, JSON.stringify({ ...object, [prop]: value }));
+      }
     } catch (error) {
       console.log(error);
       return null;
