@@ -22,12 +22,25 @@ const Home = () => {
   const userToken = getItem("userToken");
   const isAdmin = getItem("isAdmin");
   const setUserId = (id) => setItem("userId", id);
+  const setIsPatient = useCallback(
+    (isPatient) => setItem("isPatient", isPatient),
+    [setItem]
+  );
+  const isPatient = getItem("isPatient");
+  const setIsVisibleMenuButton = useCallback(
+    (isVisibleMenuButton) =>
+      setItem("isVisibleMenuButton", isVisibleMenuButton),
+    [setItem]
+  );
+  const setIsHomeScreen = useCallback(
+    (isHomeScreen) => setItem("isHomeScreen", isHomeScreen),
+    [setItem]
+  );
 
   const [input, setInput] = useState("");
   const [id, setId] = useState("");
   const [therapists, setTherapists] = useState([]);
   const [patients, setPatients] = useState([]);
-  const [therapistTF, setTherapistTF] = useState(true);
 
   const [loading, setLoading] = useState(true);
 
@@ -87,7 +100,7 @@ const Home = () => {
     } else {
       navigate("/", { replace: true });
     }
-  }, [initialize, isAdmin, navigate, userToken]);
+  }, [initialize, isAdmin, navigate, setIsPatient, userToken]);
 
   const deleteTherapist = useCallback(async () => {
     const response = await apiFetch({
@@ -166,7 +179,7 @@ const Home = () => {
                             onClick={() => {
                               handleOpenModal();
                               setId(therapist.id);
-                              setTherapistTF(true);
+                              setIsPatient(false);
                             }}
                             edge="end"
                             aria-label="delete"
@@ -179,7 +192,9 @@ const Home = () => {
                           onClick={() => {
                             navigate("/therapist", { replace: true });
                             setUserId(therapist.id);
-                            setTherapistTF(true);
+                            setIsPatient(false);
+                            setIsVisibleMenuButton(true);
+                            setIsHomeScreen(false);
                           }}
                         >
                           <ListItemText
@@ -218,7 +233,7 @@ const Home = () => {
                         onClick={() => {
                           handleOpenModal();
                           setId(patient.id_patient);
-                          setTherapistTF(false);
+                          setIsPatient(true);
                         }}
                         edge="end"
                         aria-label="delete"
@@ -231,7 +246,9 @@ const Home = () => {
                       onClick={() => {
                         navigate("/patient", { replace: true });
                         setUserId(patient.id_patient);
-                        setTherapistTF(false);
+                        setIsPatient(true);
+                        setIsVisibleMenuButton(true);
+                        setIsHomeScreen(false);
                       }}
                     >
                       <ListItemText
@@ -275,25 +292,37 @@ const Home = () => {
 
       <Modal open={openModal} onClose={handleCloseModal}>
         <Box className="flex flex--column flex--justify-center flex--align-center modal page__form">
-          {therapistTF ? (
-            <h4>Logoped bude smazán</h4>
-          ) : (
+          {isPatient ? (
             <h4>Pacient bude smazán</h4>
+          ) : (
+            <h4>Logoped bude smazán</h4>
           )}
-
-          <Button
-            onClick={() => {
-              therapistTF ? deleteTherapist() : deletePatient();
-              handleCloseModal();
-            }}
-            sx={{ width: 100 }}
-            variant="outlined"
-            size="small"
-            color="error"
-            startIcon={<DeleteIcon />}
-          >
-            Smazat
-          </Button>
+          <div className="flex flex--justify-space-between page__form">
+            <Button
+              onClick={() => {
+                handleCloseModal();
+              }}
+              sx={{ width: 100 }}
+              variant="outlined"
+              size="small"
+              color="primary"
+            >
+              Zrušit
+            </Button>
+            <Button
+              onClick={() => {
+                isPatient ? deletePatient() : deleteTherapist();
+                handleCloseModal();
+              }}
+              sx={{ width: 100 }}
+              variant="outlined"
+              size="small"
+              color="error"
+              startIcon={<DeleteIcon />}
+            >
+              Smazat
+            </Button>
+          </div>
         </Box>
       </Modal>
     </main>

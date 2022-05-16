@@ -31,17 +31,31 @@ import { apiFetch } from "../utils/apiFetch";
 import { useAppContext } from "../../App";
 import { useNavigate } from "react-router-dom";
 import _ from "lodash";
+import Chart from "react-apexcharts";
 
 const Patient = () => {
-  const { initialize, getItem, setTestId } = useAppContext();
+  const {
+    initialize,
+    getItem,
+    setItem,
+    testId,
+    setTestId,
+    setIsVisibleProfileButton,
+    setCancelNewTestButton,
+  } = useAppContext();
   const userToken = getItem("userToken");
   const userId = getItem("userId");
+
+  const setIsVisibleMenuButton = useCallback(
+    (isVisibleMenuButton) =>
+      setItem("isVisibleMenuButton", isVisibleMenuButton),
+    [setItem]
+  );
 
   const [patient, setPatient] = useState({});
   const [newPatient, setNewPatient] = useState({});
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [idTest, setIdTest] = useState("");
   const [isShortTestTF, setIsShortTestTF] = useState(false);
   const [isDeleteTF, setIsDeleteTF] = useState(false);
   const [isOptionsTF, setIsOptionsTF] = useState(true);
@@ -142,7 +156,7 @@ const Patient = () => {
 
   const deleteTest = useCallback(async () => {
     const response = await apiFetch({
-      route: `/tests/${idTest}`,
+      route: `/tests/${testId}`,
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${userToken}`,
@@ -150,12 +164,12 @@ const Patient = () => {
     });
 
     if (response) {
-      setTests(tests.filter((test) => test.id_test !== idTest));
+      setTests(tests.filter((test) => test.id_test !== testId));
     } else {
       initialize();
       navigate("/", { replace: true });
     }
-  }, [idTest, initialize, navigate, tests, userToken]);
+  }, [initialize, navigate, testId, tests, userToken]);
 
   const addTest = useCallback(async () => {
     const response = await apiFetch({
@@ -202,6 +216,27 @@ const Patient = () => {
     [initialize, navigate, newPatient, userId, userToken]
   );
 
+  // constructor(props) {
+  //   super(props);
+
+  //   this.state = {
+  //     options: {
+  //       chart: {
+  //         id: "basic-bar"
+  //       },
+  //       xaxis: {
+  //         categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999]
+  //       }
+  //     },
+  //     series: [
+  //       {
+  //         name: "series-1",
+  //         data: [30, 40, 45, 50, 49, 60, 70, 91]
+  //       }
+  //     ]
+  //   };
+  // }
+
   return _.isEmpty(patient) ? (
     <div className="flex--grow flex flex--justify-center flex--align-center">
       <CircularProgress />
@@ -209,6 +244,18 @@ const Patient = () => {
   ) : (
     <main className="page page__form container--default flex--grow flex flex--column flex--justify-center flex--align-center">
       <div className="page__width2">
+        {/* <div className="app">
+        <div className="row">
+          <div className="mixed-chart">
+            <Chart
+              options={this.state.options}
+              series={this.state.series}
+              type="bar"
+              width="500"
+            />
+          </div>
+        </div>
+      </div> */}
         <List sx={{ marginBottom: 4 }}>
           <ListItem
             sx={{ display: "block" }}
@@ -298,7 +345,6 @@ const Patient = () => {
                         <IconButton
                           onClick={() => {
                             handleOpenModal();
-                            setIdTest(row.id_test);
                             setTestId(row.id_test);
                             setIsShortTestTF(false);
                           }}
@@ -332,6 +378,8 @@ const Patient = () => {
                     ? console.log("editShortTest")
                     : navigate("/test", { replace: true });
                   handleCloseModal();
+                  setIsVisibleMenuButton(false);
+                  setIsVisibleProfileButton(false);
                 }}
                 sx={{ width: 210, height: 56 }}
                 variant="outlined"
@@ -406,6 +454,9 @@ const Patient = () => {
             onClick={() => {
               handleCloseModalTest();
               addTest();
+              setIsVisibleMenuButton(false);
+              setIsVisibleProfileButton(false);
+              setCancelNewTestButton(true);
             }}
             sx={{ width: 210, height: 56 }}
             variant="contained"
@@ -415,6 +466,9 @@ const Patient = () => {
           <Button
             onClick={() => {
               handleCloseModalTest();
+              setIsVisibleMenuButton(false);
+              setIsVisibleProfileButton(false);
+              setCancelNewTestButton(true);
             }}
             sx={{ width: 210, height: 56 }}
             variant="contained"
@@ -521,18 +575,6 @@ const Patient = () => {
       >
         <AddIcon sx={{ mr: 1 }} />
         Přidat test
-      </Fab>
-
-      <Fab
-        onClick={() => {
-          navigate("/test", { replace: true });
-        }}
-        sx={{ position: "fixed", bottom: 20, left: 20 }}
-        color="primary"
-        variant="extended"
-      >
-        <AddIcon sx={{ mr: 1 }} />
-        Test
       </Fab>
     </main>
   );

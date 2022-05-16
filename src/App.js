@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useMemo } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./js/layout/Layout";
 import Home from "./js/pages/Home";
@@ -17,12 +17,34 @@ const AppContext = createContext();
 export const useAppContext = () => useContext(AppContext);
 
 const App = () => {
-  const storage = useLocalStorage(STORAGE_KEY, {
-    userToken: "",
-    userId: "",
-    isAdmin: "",
-  });
+  const dataToStore = useMemo(
+    () => ({
+      userToken: "",
+      userId: "",
+      isAdmin: "",
+      isHomeScreen: "",
+      isVisibleMenuButton: "",
+    }),
+    []
+  );
+  const storage = useLocalStorage(STORAGE_KEY, dataToStore);
+
   const [testId, setTestId] = useState("");
+  const [isVisibleProfileButton, setIsVisibleProfileButton] = useState(true);
+  const [isOpenedDrawer, setIsOpenedDrawer] = useState(false);
+  const [cancelNewTestButton, setCancelNewTestButton] = useState(false);
+
+  const toggleDrawer = (open) => (event) => {
+    if (
+      event &&
+      event.type === "keydown" &&
+      (event.key === "Tab" || event.key === "Shift")
+    ) {
+      return;
+    }
+
+    setIsOpenedDrawer(open);
+  };
 
   if (storage) {
     const [initialize, getItem, setItem] = storage;
@@ -35,6 +57,12 @@ const App = () => {
           setItem,
           testId,
           setTestId,
+          isVisibleProfileButton,
+          setIsVisibleProfileButton,
+          isOpenedDrawer,
+          toggleDrawer,
+          cancelNewTestButton,
+          setCancelNewTestButton,
         }}
       >
         <BrowserRouter>

@@ -11,14 +11,36 @@ import { FormControl } from "@mui/material";
 import { FormControlLabel } from "@mui/material";
 import { RadioGroup } from "@mui/material";
 import { Radio } from "@mui/material";
+import { Box } from "@mui/system";
+import { List } from "@mui/material";
+import { ListItem } from "@mui/material";
+import { ListItemButton } from "@mui/material";
+import { ListItemText } from "@mui/material";
+import { SwipeableDrawer } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import DoneIcon from "@mui/icons-material/Done";
 import { apiFetch } from "../utils/apiFetch";
 
 const Test = () => {
-  const { initialize, getItem, testId } = useAppContext();
+  const {
+    initialize,
+    getItem,
+    setItem,
+    testId,
+    setIsVisibleProfileButton,
+    isOpenedDrawer,
+    toggleDrawer,
+    setCancelNewTestButton,
+  } = useAppContext();
   const userToken = getItem("userToken");
+
+  const setIsVisibleMenuButton = useCallback(
+    (isVisibleMenuButton) =>
+      setItem("isVisibleMenuButton", isVisibleMenuButton),
+    [setItem]
+  );
 
   const [tasks, setTasks] = useState([]);
   const [idTask, setIdTask] = useState(0);
@@ -141,8 +163,6 @@ const Test = () => {
           <div className="page__width2">
             <h3>{tasks[idTask].subcategory}</h3>
             <h3 style={{ marginTop: 5 }}>{tasks[idTask].title}</h3>
-            {/* <div style={{ marginTop: 5 }}>{tasks[idTask].description}</div>
-            <div style={{ marginTop: 5 }}>{tasks[idTask].evaluation}</div> */}
             <Accordion sx={{ marginTop: 1 }}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography>Popis úkolu</Typography>
@@ -168,7 +188,39 @@ const Test = () => {
               <FormControlLabel value="0" control={<Radio />} label="0" />
             </RadioGroup>
           </FormControl>
+
+          <SwipeableDrawer
+            anchor={"right"}
+            open={isOpenedDrawer}
+            onClose={toggleDrawer(false)}
+            onOpen={toggleDrawer(true)}
+          >
+            <Box
+              sx={{
+                width: 250,
+              }}
+              role="presentation"
+              onClick={toggleDrawer(false)}
+              onKeyDown={toggleDrawer(false)}
+            >
+              <List>
+                {tasks.map((task, index) => (
+                  <ListItem key={index} disablePadding>
+                    <ListItemButton
+                      onClick={() => {
+                        setIdTask(task.id_task - 1);
+                        setTaskPoints("");
+                      }}
+                    >
+                      <ListItemText primary={task.title} />
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+          </SwipeableDrawer>
         </div>
+
         {showBackButton && (
           <Fab
             onClick={() => {
@@ -201,13 +253,16 @@ const Test = () => {
           <Fab
             onClick={() => {
               navigate("/patient", { replace: true });
+              setIsVisibleMenuButton(true);
+              setIsVisibleProfileButton(true);
+              setCancelNewTestButton(false);
             }}
             sx={{ position: "fixed", bottom: 20, right: 20 }}
-            color="primary"
+            color="success"
             variant="extended"
           >
             Uložit
-            <ArrowForwardIosIcon sx={{ ml: 1 }} />
+            <DoneIcon sx={{ ml: 1 }} />
           </Fab>
         )}
       </main>

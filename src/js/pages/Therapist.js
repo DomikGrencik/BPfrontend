@@ -37,6 +37,7 @@ const Therapist = () => {
   };
 
   const [therapist, setTherapist] = useState({});
+  const [newTherapist, setNewTherapist] = useState({});
   const [passwordProps, setPasswordProps] = useState({
     password: "",
     passwordRepeat: "",
@@ -82,6 +83,7 @@ const Therapist = () => {
 
       if (response) {
         setTherapist(response);
+        setNewTherapist(response);
       } else {
         initialize();
         navigate("/", { replace: true });
@@ -105,24 +107,18 @@ const Therapist = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${userToken}`,
         },
-        body: { name: therapist.name, surename: therapist.surename },
+        body: { name: newTherapist.name, surename: newTherapist.surename },
       });
 
       if (response) {
+        setTherapist(newTherapist);
         handleClose();
       } else {
         initialize();
         navigate("/", { replace: true });
       }
     },
-    [
-      initialize,
-      navigate,
-      therapist.name,
-      therapist.surename,
-      userId,
-      userToken,
-    ]
+    [initialize, navigate, newTherapist, userId, userToken]
   );
 
   const changePassword = useCallback(
@@ -206,31 +202,49 @@ const Therapist = () => {
                   <h4>Změnit jméno a příjmení</h4>
                   <TextField
                     onChange={(event) =>
-                      setTherapist({ ...therapist, name: event.target.value })
+                      setNewTherapist({
+                        ...newTherapist,
+                        name: event.target.value,
+                      })
                     }
                     label="Jméno"
                     variant="outlined"
-                    defaultValue={therapist.name}
+                    value={newTherapist.name}
                   />
                   <TextField
                     onChange={(event) =>
-                      setTherapist({
-                        ...therapist,
+                      setNewTherapist({
+                        ...newTherapist,
                         surename: event.target.value,
                       })
                     }
                     label="Příjmení"
                     variant="outlined"
-                    defaultValue={therapist.surename}
+                    value={newTherapist.surename}
                   />
-                  <Button
-                    type="submit"
-                    sx={{ width: 100 }}
-                    variant="contained"
-                    size="small"
-                  >
-                    Změnit
-                  </Button>
+                  <div className="flex flex--justify-space-between page__form">
+                    <Button
+                      onClick={() => {
+                        setNewTherapist(therapist);
+                        handleClose();
+                      }}
+                      type="button"
+                      sx={{ width: 100 }}
+                      variant="outlined"
+                      size="small"
+                      color="error"
+                    >
+                      Zrušit
+                    </Button>
+                    <Button
+                      type="submit"
+                      sx={{ width: 100 }}
+                      variant="outlined"
+                      size="small"
+                    >
+                      Změnit
+                    </Button>
+                  </div>
                 </form>
               ) : (
                 <form
@@ -274,14 +288,28 @@ const Therapist = () => {
                       }}
                     />
                   ))}
-                  <Button
-                    type="submit"
-                    sx={{ width: 100 }}
-                    variant="contained"
-                    size="small"
-                  >
-                    Změnit
-                  </Button>
+                  <div className="flex flex--justify-space-between page__form">
+                    <Button
+                      onClick={() => {
+                        handleClose();
+                      }}
+                      type="button"
+                      sx={{ width: 100 }}
+                      variant="outlined"
+                      size="small"
+                      color="error"
+                    >
+                      Zrušit
+                    </Button>
+                    <Button
+                      type="submit"
+                      sx={{ width: 100 }}
+                      variant="outlined"
+                      size="small"
+                    >
+                      Změnit
+                    </Button>
+                  </div>
                 </form>
               )}
             </>
