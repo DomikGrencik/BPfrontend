@@ -216,26 +216,36 @@ const Patient = () => {
     [initialize, navigate, newPatient, userId, userToken]
   );
 
-  // constructor(props) {
-  //   super(props);
-
-  //   this.state = {
-  //     options: {
-  //       chart: {
-  //         id: "basic-bar"
-  //       },
-  //       xaxis: {
-  //         categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999]
-  //       }
-  //     },
-  //     series: [
-  //       {
-  //         name: "series-1",
-  //         data: [30, 40, 45, 50, 49, 60, 70, 91]
-  //       }
-  //     ]
-  //   };
-  // }
+  const dataGraph = {
+    options: {
+      chart: {
+        id: "basic-bar",
+      },
+      xaxis: {
+        categories: [
+          "Rty",
+          "Čelist",
+          "Jazyk",
+          "Respirace",
+          "R. při f.",
+          "Fonace",
+          "Artikulace",
+          "Prozódie",
+          "Srozumitelnost",
+        ],
+      },
+    },
+    series: [
+      {
+        name: "series-1",
+        data: [8, 6, 7, 9, 6, 5, 8, 7, 9],
+      },
+      {
+        name: "series-2",
+        data: [6, 5, 4, 7, 4, 2, 5, 4, 7],
+      },
+    ],
+  };
 
   return _.isEmpty(patient) ? (
     <div className="flex--grow flex flex--justify-center flex--align-center">
@@ -244,18 +254,6 @@ const Patient = () => {
   ) : (
     <main className="page page__form container--default flex--grow flex flex--column flex--justify-center flex--align-center">
       <div className="page__width2">
-        {/* <div className="app">
-        <div className="row">
-          <div className="mixed-chart">
-            <Chart
-              options={this.state.options}
-              series={this.state.series}
-              type="bar"
-              width="500"
-            />
-          </div>
-        </div>
-      </div> */}
         <List sx={{ marginBottom: 4 }}>
           <ListItem
             sx={{ display: "block" }}
@@ -274,7 +272,15 @@ const Patient = () => {
             <div>{`${patient.birth_year}, ${patient.gender}`}</div>
           </ListItem>
         </List>
-        <h3 style={{ marginBottom: 6 }}>Základné testy pacienta</h3>
+        <div className="graph">
+          <Chart
+            options={dataGraph.options}
+            series={dataGraph.series}
+            type="line"
+            width="500"
+          />
+        </div>
+        <h3 style={{ marginTop: 8,marginBottom: 8 }}>Základné testy pacienta</h3>
         {loading ? (
           <div className="flex--grow flex flex--justify-center flex--align-center">
             <CircularProgress />

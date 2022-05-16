@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -6,9 +6,13 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
+import KeyIcon from '@mui/icons-material/Key';
+import Logout from "@mui/icons-material/Logout";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
+import { ListItemIcon } from "@mui/material";
+import { Divider } from "@mui/material";
 import { Modal } from "@mui/material";
 import { Button } from "@mui/material";
 import { apiFetch } from "../utils/apiFetch";
@@ -21,6 +25,7 @@ const MenuAppBar = () => {
     getItem,
     setItem,
     isVisibleProfileButton,
+    setIsVisibleProfileButton,
     isOpenedDrawer,
     toggleDrawer,
     cancelNewTestButton,
@@ -31,6 +36,11 @@ const MenuAppBar = () => {
   const isPatient = getItem("isPatient");
   const isVisibleMenuButton = getItem("isVisibleMenuButton");
 
+  const setIsVisibleMenuButton = useCallback(
+    (isVisibleMenuButton) =>
+      setItem("isVisibleMenuButton", isVisibleMenuButton),
+    [setItem]
+  );
   const setIsHomeScreen = useCallback(
     (isHomeScreen) => setItem("isHomeScreen", isHomeScreen),
     [setItem]
@@ -38,6 +48,13 @@ const MenuAppBar = () => {
   const isHomeScreen = getItem("isHomeScreen");
 
   const [anchorEl, setAnchorEl] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState({});
+  const [passwordProps, setPasswordProps] = useState({
+    password: "",
+    passwordRepeat: "",
+    showPassword: false,
+  });
 
   const [openModal, setOpenModal] = useState(false);
   const handleOpenModal = () => setOpenModal(true);
@@ -52,6 +69,33 @@ const MenuAppBar = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await apiFetch({
+        route: "/profile",
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+        setLoading,
+      });
+
+      if (response) {
+        setProfile(response.data);
+      } else {
+        initialize();
+        navigate("/", { replace: true });
+      }
+    };
+    if (userToken) {
+      fetchData();
+    } else {
+      if (userToken) {
+        navigate("/", { replace: true });
+      }
+    }
+  }, [initialize, navigate, userToken]);
 
   const handleLogout = useCallback(async () => {
     await apiFetch({
@@ -78,12 +122,22 @@ const MenuAppBar = () => {
     if (response) {
       handleCloseModal();
       setCancelNewTestButton(false);
+      setIsVisibleProfileButton(true);
+      setIsVisibleMenuButton(true);
       navigate("/patient", { replace: true });
     } else {
       initialize();
       navigate("/", { replace: true });
     }
-  }, [initialize, navigate, setCancelNewTestButton, testId, userToken]);
+  }, [
+    initialize,
+    navigate,
+    setCancelNewTestButton,
+    setIsVisibleMenuButton,
+    setIsVisibleProfileButton,
+    testId,
+    userToken,
+  ]);
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -170,14 +224,41 @@ const MenuAppBar = () => {
                     open={Boolean(anchorEl)}
                     onClose={handleClose}
                   >
-                    <MenuItem onClick={handleClose}>Profil</MenuItem>
+                    <MenuItem
+                      className="flex flex--column flex--align-center"
+                      onClick={handleClose}
+                    >
+                      <h3>Můj profil</h3>
+                    </MenuItem>
+                    <Divider />
+                    <MenuItem>
+                      <h4>{`${profile.name} ${profile.surename}`}</h4>
+                    </MenuItem>
+                    <MenuItem sx={{ display: "block" }}>
+                      <div>login:</div>
+                      <h4>{profile.login}</h4>
+                    </MenuItem>
+                    <Divider/>
+                    <MenuItem
+                      onClick={() => {
+
+                      }}
+                    >
+                      <ListItemIcon>
+                        <KeyIcon fontSize="small" />
+                      </ListItemIcon>
+                      Změnit heslo
+                    </MenuItem>
                     <MenuItem
                       onClick={() => {
                         handleLogout();
                         handleClose();
                       }}
-                      style={{ color: "red" }}
+                      // style={{ color: "red" }}
                     >
+                      <ListItemIcon>
+                        <Logout fontSize="small" />
+                      </ListItemIcon>
                       Odhlásit se
                     </MenuItem>
                   </Menu>
