@@ -54,7 +54,11 @@ const Test = () => {
         navigate("/", { replace: true });
       }
     };
-    fetchData();
+    if (userToken) {
+      fetchData();
+    } else {
+      navigate("/", { replace: true });
+    }
   }, [initialize, navigate, userToken]);
 
   useEffect(() => {
@@ -89,7 +93,11 @@ const Test = () => {
         navigate("/", { replace: true });
       }
     };
-    fetchData();
+    if (userToken) {
+      fetchData();
+    } else {
+      navigate("/", { replace: true });
+    }
   }, [idTask, initialize, navigate, testId, userToken]);
 
   const handleChange = useCallback(

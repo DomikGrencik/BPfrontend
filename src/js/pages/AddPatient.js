@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 const AddPatient = () => {
   const { initialize, getItem } = useAppContext();
   const userToken = getItem("userToken");
+  const isAdmin = getItem("isAdmin");
 
   const [therapists, setTherapists] = useState([]);
   const [patientData, setPatientData] = useState({
@@ -78,8 +79,15 @@ const AddPatient = () => {
         navigate("/", { replace: true });
       }
     };
-    fetchData();
-  }, [initialize, navigate, userToken]);
+
+    if (userToken) {
+      if (isAdmin) {
+        fetchData();
+      }
+    } else {
+      navigate("/", { replace: true });
+    }
+  }, [initialize, isAdmin, navigate, userToken]);
 
   return (
     <main className="page container--default flex--grow flex">
@@ -136,30 +144,37 @@ const AddPatient = () => {
             <MenuItem value={"F"}>Ženské</MenuItem>
           </Select>
         </FormControl>
-        <Autocomplete
-          disablePortal
-          options={therapists.map((option) => {
-            return {
-              value: option.id,
-              label: `${option.name} ${option.surename}`,
-            };
-          })}
-          sx={{ width: 210 }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              required
-              label="Přidání logopedovi"
-              InputProps={{
-                ...params.InputProps,
+
+        {isAdmin && (
+          <>
+            <Autocomplete
+              disablePortal
+              options={therapists.map((option) => {
+                return {
+                  value: option.id,
+                  label: `${option.name} ${option.surename}`,
+                };
+              })}
+              sx={{ width: 210 }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  required
+                  label="Přidání logopedovi"
+                  InputProps={{
+                    ...params.InputProps,
+                  }}
+                />
+              )}
+              onChange={(_, value) => {
+                setPatientData({ ...patientData, id: value.value });
               }}
+              isOptionEqualToValue={(option, value) =>
+                option.value === value.value
+              }
             />
-          )}
-          onChange={(_, value) => {
-            setPatientData({ ...patientData, id: value.value });
-          }}
-          isOptionEqualToValue={(option, value) => option.value === value.value}
-        />
+          </>
+        )}
         <Fab
           onClick={() => {
             navigate("/home", { replace: true });

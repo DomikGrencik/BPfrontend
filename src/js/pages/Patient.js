@@ -100,11 +100,14 @@ const Patient = () => {
         navigate("/", { replace: true });
       }
     };
-    fetchData();
+    if (userToken) {
+      fetchData();
+    } else {
+      navigate("/", { replace: true });
+    }
   }, [initialize, navigate, userId, userToken]);
 
   useEffect(() => {
-    console.log("getTests");
     const fetchData = async () => {
       const response = await apiFetch({
         route: `/tests/${userId}`,
@@ -130,7 +133,11 @@ const Patient = () => {
         navigate("/", { replace: true });
       }
     };
-    fetchData();
+    if (userToken) {
+      fetchData();
+    } else {
+      navigate("/", { replace: true });
+    }
   }, [getDx, initialize, navigate, userId, userToken]);
 
   const deleteTest = useCallback(async () => {

@@ -87,7 +87,11 @@ const Therapist = () => {
         navigate("/", { replace: true });
       }
     };
-    fetchData();
+    if (userToken) {
+      fetchData();
+    } else {
+      navigate("/", { replace: true });
+    }
   }, [initialize, navigate, userId, userToken]);
 
   const changeName = useCallback(

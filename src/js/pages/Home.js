@@ -20,6 +20,7 @@ import { apiFetch } from "../utils/apiFetch";
 const Home = () => {
   const { initialize, getItem, setItem } = useAppContext();
   const userToken = getItem("userToken");
+  const isAdmin = getItem("isAdmin");
   const setUserId = (id) => setItem("userId", id);
 
   const [input, setInput] = useState("");
@@ -43,22 +44,24 @@ const Home = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const responseT = await apiFetch({
-        route: "/users",
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${userToken}`,
-        },
-        setLoading,
-      });
+      if (isAdmin) {
+        const responseT = await apiFetch({
+          route: "/users",
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+          setLoading,
+        });
 
-      if (responseT) {
-        if (Array.isArray(responseT)) {
-          setTherapists(responseT);
+        if (responseT) {
+          if (Array.isArray(responseT)) {
+            setTherapists(responseT);
+          }
+        } else {
+          initialize();
+          navigate("/", { replace: true });
         }
-      } else {
-        initialize();
-        navigate("/", { replace: true });
       }
 
       const responseP = await apiFetch({
@@ -79,8 +82,12 @@ const Home = () => {
         navigate("/", { replace: true });
       }
     };
-    fetchData();
-  }, [initialize, navigate, userToken]);
+    if (userToken) {
+      fetchData();
+    } else {
+      navigate("/", { replace: true });
+    }
+  }, [initialize, isAdmin, navigate, userToken]);
 
   const deleteTherapist = useCallback(async () => {
     const response = await apiFetch({
@@ -139,55 +146,59 @@ const Home = () => {
         />
         <div className="page__width ">
           {/* Therapists */}
-          <h2>Logopedi</h2>
-          <List>
-            {therapists.map((therapist, index) => {
-              const matches =
-                `${therapist.name.toLowerCase()}${therapist.surename.toLowerCase()}`.includes(
-                  input.toLowerCase().replace(/\s/g, "")
-                );
+          {isAdmin && (
+            <>
+              <h2>Logopedi</h2>
+              <List>
+                {therapists.map((therapist, index) => {
+                  const matches =
+                    `${therapist.name.toLowerCase()}${therapist.surename.toLowerCase()}`.includes(
+                      input.toLowerCase().replace(/\s/g, "")
+                    );
 
-              return (
-                matches && (
-                  <ListItem
-                    key={index}
-                    disablePadding
-                    secondaryAction={
-                      <IconButton
-                        onClick={() => {
-                          handleOpenModal();
-                          setId(therapist.id);
-                          setTherapistTF(true);
-                        }}
-                        edge="end"
-                        aria-label="delete"
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    }
-                  >
-                    <ListItemButton
-                      onClick={() => {
-                        navigate("/therapist", { replace: true });
-                        setUserId(therapist.id);
-                        setTherapistTF(true);
-                      }}
-                    >
-                      <ListItemText
-                        primary={
-                          therapist.id +
-                          ", " +
-                          therapist.name +
-                          " " +
-                          therapist.surename
+                  return (
+                    matches && (
+                      <ListItem
+                        key={index}
+                        disablePadding
+                        secondaryAction={
+                          <IconButton
+                            onClick={() => {
+                              handleOpenModal();
+                              setId(therapist.id);
+                              setTherapistTF(true);
+                            }}
+                            edge="end"
+                            aria-label="delete"
+                          >
+                            <DeleteIcon />
+                          </IconButton>
                         }
-                      />
-                    </ListItemButton>
-                  </ListItem>
-                )
-              );
-            })}
-          </List>
+                      >
+                        <ListItemButton
+                          onClick={() => {
+                            navigate("/therapist", { replace: true });
+                            setUserId(therapist.id);
+                            setTherapistTF(true);
+                          }}
+                        >
+                          <ListItemText
+                            primary={
+                              therapist.id +
+                              ", " +
+                              therapist.name +
+                              " " +
+                              therapist.surename
+                            }
+                          />
+                        </ListItemButton>
+                      </ListItem>
+                    )
+                  );
+                })}
+              </List>
+            </>
+          )}
 
           {/* Patients */}
           <h2 className="home__margin">Pacienti</h2>
@@ -234,17 +245,22 @@ const Home = () => {
           </List>
         </div>
       </div>
-      <Fab
-        onClick={() => {
-          navigate("/addtherapist", { replace: true });
-        }}
-        sx={{ position: "fixed", bottom: 20, left: 20 }}
-        color="primary"
-        variant="extended"
-      >
-        <AddIcon sx={{ mr: 1 }} />
-        logoped
-      </Fab>
+
+      {isAdmin && (
+        <>
+          <Fab
+            onClick={() => {
+              navigate("/addtherapist", { replace: true });
+            }}
+            sx={{ position: "fixed", bottom: 20, left: 20 }}
+            color="primary"
+            variant="extended"
+          >
+            <AddIcon sx={{ mr: 1 }} />
+            logoped
+          </Fab>
+        </>
+      )}
       <Fab
         onClick={() => {
           navigate("/addpatient", { replace: true });
