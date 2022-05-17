@@ -42,6 +42,8 @@ const Patient = () => {
     setTestId,
     setIsVisibleProfileButton,
     setCancelNewTestButton,
+    isShortTest,
+    setIsShortTest,
   } = useAppContext();
   const userToken = getItem("userToken");
   const userId = getItem("userId");
@@ -55,8 +57,8 @@ const Patient = () => {
   const [patient, setPatient] = useState({});
   const [newPatient, setNewPatient] = useState({});
   const [tests, setTests] = useState([]);
+  const [shortTests, setShortTests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isShortTestTF, setIsShortTestTF] = useState(false);
   const [isDeleteTF, setIsDeleteTF] = useState(false);
   const [isOptionsTF, setIsOptionsTF] = useState(true);
 
@@ -74,7 +76,7 @@ const Patient = () => {
 
   const navigate = useNavigate();
 
-  const getDx = useCallback(
+  const getTestDX = useCallback(
     async (id_test) => {
       const response = await apiFetch({
         route: `/test_tasks/getTestPoints/${id_test}`,
@@ -96,6 +98,29 @@ const Patient = () => {
     [initialize, navigate, userToken]
   );
 
+  const getShortTestDX = useCallback(
+    async (id_test) => {
+      const response = await apiFetch({
+        route: `/short_test_tasks/getShortTestPoints/${id_test}`,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
+
+      if (response) {
+        let dx = 0;
+        response.forEach((element) => (dx += parseFloat(element.points)));
+        return dx;
+      } else {
+        initialize();
+        navigate("/", { replace: true });
+      }
+    },
+    [initialize, navigate, userToken]
+  );
+
+  // Gets patient's general data
   useEffect(() => {
     const fetchData = async () => {
       const response = await apiFetch({
@@ -121,6 +146,7 @@ const Patient = () => {
     }
   }, [initialize, navigate, userId, userToken]);
 
+  // Gets all existing tests of patient
   useEffect(() => {
     const fetchData = async () => {
       const response = await apiFetch({
@@ -136,7 +162,7 @@ const Patient = () => {
         setLoading(true);
         const tests = await Promise.all(
           response.reverse().map(async (test) => {
-            test.dx = await getDx(test.id_test);
+            test.dx = await getTestDX(test.id_test);
             return test;
           })
         );
@@ -152,8 +178,9 @@ const Patient = () => {
     } else {
       navigate("/", { replace: true });
     }
-  }, [getDx, initialize, navigate, userId, userToken]);
+  }, [getTestDX, initialize, navigate, userId, userToken]);
 
+  // Deletes one test of patient
   const deleteTest = useCallback(async () => {
     const response = await apiFetch({
       route: `/tests/${testId}`,
@@ -171,6 +198,7 @@ const Patient = () => {
     }
   }, [initialize, navigate, testId, tests, userToken]);
 
+  // Adds new test to patint
   const addTest = useCallback(async () => {
     const response = await apiFetch({
       route: "/tests",
@@ -191,6 +219,82 @@ const Patient = () => {
     }
   }, [initialize, navigate, setTestId, userId, userToken]);
 
+  // Gets all existing short tests of patient
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await apiFetch({
+        route: `/short_tests/${userId}`,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+        setLoading,
+      });
+
+      if (response) {
+        setLoading(true);
+        const shortTests = await Promise.all(
+          response.reverse().map(async (shortTest) => {
+            shortTest.dx = await getShortTestDX(shortTest.id_short_test);
+            return shortTest;
+          })
+        );
+        setShortTests(shortTests);
+        setLoading(false);
+      } else {
+        initialize();
+        navigate("/", { replace: true });
+      }
+    };
+    if (userToken) {
+      fetchData();
+    } else {
+      navigate("/", { replace: true });
+    }
+  }, [getShortTestDX, getTestDX, initialize, navigate, userId, userToken]);
+
+  // Deletes one short test of patient
+  const deleteShortTest = useCallback(async () => {
+    const response = await apiFetch({
+      route: `/short_tests/${testId}`,
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
+
+    if (response) {
+      setShortTests(
+        shortTests.filter((shortTest) => shortTest.id_short_test !== testId)
+      );
+    } else {
+      initialize();
+      navigate("/", { replace: true });
+    }
+  }, [initialize, navigate, shortTests, testId, userToken]);
+
+  // Adds new short test to patint
+  const addShortTest = useCallback(async () => {
+    const response = await apiFetch({
+      route: "/short_tests",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${userToken}`,
+      },
+      body: { id_patient: `${userId}` },
+    });
+
+    if (response) {
+      setTestId(response.id_short_test);
+      navigate("/shorttest", { replace: true });
+    } else {
+      initialize();
+      navigate("/", { replace: true });
+    }
+  }, [initialize, navigate, setTestId, userId, userToken]);
+
+  // Changes patients general data
   const changeData = useCallback(
     async (event) => {
       event.preventDefault();
@@ -272,15 +376,17 @@ const Patient = () => {
             <div>{`${patient.birth_year}, ${patient.gender}`}</div>
           </ListItem>
         </List>
-        <div className="graph">
+        {/* <div className="graph">
           <Chart
             options={dataGraph.options}
             series={dataGraph.series}
             type="line"
             width="500"
           />
-        </div>
-        <h3 style={{ marginTop: 8,marginBottom: 8 }}>Základné testy pacienta</h3>
+        </div> */}
+        <h3 style={{ marginTop: 8, marginBottom: 8 }}>
+          Základné testy pacienta
+        </h3>
         {loading ? (
           <div className="flex--grow flex flex--justify-center flex--align-center">
             <CircularProgress />
@@ -352,7 +458,95 @@ const Patient = () => {
                           onClick={() => {
                             handleOpenModal();
                             setTestId(row.id_test);
-                            setIsShortTestTF(false);
+                            setIsShortTest(false);
+                          }}
+                        >
+                          <MoreVertIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
+        )}
+
+        <h3 style={{ marginTop: 24, marginBottom: 8 }}>
+          Zjednodušené testy pacienta
+        </h3>
+        {loading ? (
+          <div className="flex--grow flex flex--justify-center flex--align-center">
+            <CircularProgress />
+          </div>
+        ) : (
+          <Paper>
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell
+                      sx={{ color: "rgba(0, 0, 0, 0.6)" }}
+                      width={70}
+                      align="left"
+                    >
+                      Datum
+                    </TableCell>
+                    <TableCell
+                      sx={{ color: "rgba(0, 0, 0, 0.6)" }}
+                      width={50}
+                      align="center"
+                    >
+                      DX
+                    </TableCell>
+                    <TableCell
+                      sx={{ color: "rgba(0, 0, 0, 0.6)" }}
+                      align="center"
+                    >
+                      Zobrazit
+                    </TableCell>
+                    <TableCell
+                      sx={{ color: "rgba(0, 0, 0, 0.6)" }}
+                      width={50}
+                      align="right"
+                    ></TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {shortTests.map((row) => (
+                    <TableRow
+                      key={row.id_short_test}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    >
+                      <TableCell
+                        sx={{ color: "rgba(0, 0, 0, 0.6)" }}
+                        align="left"
+                        component="th"
+                        scope="row"
+                      >
+                        {row.created_at}
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "rgba(0, 0, 0, 0.6)" }}
+                        align="center"
+                      >
+                        {row.dx}
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "rgba(0, 0, 0, 0.6)" }}
+                        align="center"
+                      >
+                        <Checkbox />
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "rgba(0, 0, 0, 0.6)" }}
+                        align="right"
+                      >
+                        <IconButton
+                          onClick={() => {
+                            handleOpenModal();
+                            setTestId(row.id_short_test);
+                            setIsShortTest(true);
                           }}
                         >
                           <MoreVertIcon />
@@ -380,8 +574,8 @@ const Patient = () => {
             <>
               <Button
                 onClick={() => {
-                  isShortTestTF
-                    ? console.log("editShortTest")
+                  isShortTest
+                    ? navigate("/shorttest", { replace: true })
                     : navigate("/test", { replace: true });
                   handleCloseModal();
                   setIsVisibleMenuButton(false);
@@ -410,7 +604,7 @@ const Patient = () => {
           )}
           {isDeleteTF && (
             <>
-              {isShortTestTF ? (
+              {isShortTest ? (
                 <h4>Opravdu chcete smazat krátký test?</h4>
               ) : (
                 <h4>Opravdu chcete smazat test?</h4>
@@ -432,9 +626,7 @@ const Patient = () => {
                 </Button>
                 <Button
                   onClick={() => {
-                    isShortTestTF
-                      ? console.log("deleteShortTest")
-                      : deleteTest();
+                    isShortTest ? deleteShortTest() : deleteTest();
                     setIsDeleteTF(false);
                     setIsOptionsTF(true);
                     handleCloseModal();
@@ -460,6 +652,7 @@ const Patient = () => {
             onClick={() => {
               handleCloseModalTest();
               addTest();
+              setIsShortTest(false);
               setIsVisibleMenuButton(false);
               setIsVisibleProfileButton(false);
               setCancelNewTestButton(true);
@@ -472,6 +665,8 @@ const Patient = () => {
           <Button
             onClick={() => {
               handleCloseModalTest();
+              addShortTest();
+              setIsShortTest(true);
               setIsVisibleMenuButton(false);
               setIsVisibleProfileButton(false);
               setCancelNewTestButton(true);

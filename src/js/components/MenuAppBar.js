@@ -6,7 +6,7 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
-import KeyIcon from '@mui/icons-material/Key';
+import KeyIcon from "@mui/icons-material/Key";
 import Logout from "@mui/icons-material/Logout";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import MenuItem from "@mui/material/MenuItem";
@@ -31,6 +31,7 @@ const MenuAppBar = () => {
     cancelNewTestButton,
     setCancelNewTestButton,
     testId,
+    isShortTest,
   } = useAppContext();
   const userToken = getItem("userToken");
   const isPatient = getItem("isPatient");
@@ -70,6 +71,7 @@ const MenuAppBar = () => {
     setAnchorEl(null);
   };
 
+  // Gets general data of logged in user
   useEffect(() => {
     const fetchData = async () => {
       const response = await apiFetch({
@@ -97,6 +99,7 @@ const MenuAppBar = () => {
     }
   }, [initialize, navigate, userToken]);
 
+  // Logs out user, clears local storage
   const handleLogout = useCallback(async () => {
     await apiFetch({
       route: "/logout",
@@ -110,9 +113,40 @@ const MenuAppBar = () => {
     navigate("/", { replace: true });
   }, [initialize, navigate, userToken]);
 
+  // Deletes test
   const deleteTest = useCallback(async () => {
     const response = await apiFetch({
       route: `/tests/${testId}`,
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
+
+    if (response) {
+      handleCloseModal();
+      setCancelNewTestButton(false);
+      setIsVisibleProfileButton(true);
+      setIsVisibleMenuButton(true);
+      navigate("/patient", { replace: true });
+    } else {
+      initialize();
+      navigate("/", { replace: true });
+    }
+  }, [
+    initialize,
+    navigate,
+    setCancelNewTestButton,
+    setIsVisibleMenuButton,
+    setIsVisibleProfileButton,
+    testId,
+    userToken,
+  ]);
+
+  // Deletes short test
+  const deleteShortTest = useCallback(async () => {
+    const response = await apiFetch({
+      route: `/short_tests/${testId}`,
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${userToken}`,
@@ -238,12 +272,8 @@ const MenuAppBar = () => {
                       <div>login:</div>
                       <h4>{profile.login}</h4>
                     </MenuItem>
-                    <Divider/>
-                    <MenuItem
-                      onClick={() => {
-
-                      }}
-                    >
+                    <Divider />
+                    <MenuItem onClick={() => {}}>
                       <ListItemIcon>
                         <KeyIcon fontSize="small" />
                       </ListItemIcon>
@@ -297,7 +327,7 @@ const MenuAppBar = () => {
             </Button>
             <Button
               onClick={() => {
-                deleteTest();
+                isShortTest ? deleteShortTest() : deleteTest();
               }}
               sx={{ width: 100 }}
               variant="outlined"

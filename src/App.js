@@ -10,6 +10,7 @@ import AddPatient from "./js/pages/AddPatient";
 import Patient from "./js/pages/Patient";
 import Therapist from "./js/pages/Therapist";
 import Test from "./js/pages/Test";
+import ShortTest from "./js/pages/ShortTest";
 import { useLocalStorage } from "./js/utils/useLocalStorage";
 import { STORAGE_KEY } from "./js/utils/variables";
 
@@ -33,6 +34,7 @@ const App = () => {
   const [isVisibleProfileButton, setIsVisibleProfileButton] = useState(true);
   const [isOpenedDrawer, setIsOpenedDrawer] = useState(false);
   const [cancelNewTestButton, setCancelNewTestButton] = useState(false);
+  const [isShortTest, setIsShortTest] = useState(true);
 
   const toggleDrawer = (open) => (event) => {
     if (
@@ -63,6 +65,8 @@ const App = () => {
           toggleDrawer,
           cancelNewTestButton,
           setCancelNewTestButton,
+          isShortTest,
+          setIsShortTest,
         }}
       >
         <BrowserRouter>
@@ -76,6 +80,7 @@ const App = () => {
               <Route path="/patient" element={<Patient />} />
               <Route path="/therapist" element={<Therapist />} />
               <Route path="/test" element={<Test />} />
+              <Route path="/shorttest" element={<ShortTest />} />
               <Route path="*" element={<NoPage />} />
             </Route>
           </Routes>
