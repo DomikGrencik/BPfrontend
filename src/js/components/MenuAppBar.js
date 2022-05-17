@@ -310,6 +310,7 @@ const MenuAppBar = () => {
                     <AccountCircle />
                   </IconButton>
                   <Menu
+                    className="page__color"
                     id="menu-appbar"
                     anchorEl={anchorEl}
                     anchorOrigin={{
