@@ -8,9 +8,9 @@ import { AccordionSummary } from "@mui/material";
 import { AccordionDetails } from "@mui/material";
 import { Typography } from "@mui/material";
 import { FormControl } from "@mui/material";
-import { FormControlLabel } from "@mui/material";
-import { RadioGroup } from "@mui/material";
-import { Radio } from "@mui/material";
+import { InputLabel } from "@mui/material";
+import { Select } from "@mui/material";
+import { MenuItem } from "@mui/material";
 import { Box } from "@mui/system";
 import { List } from "@mui/material";
 import { ListItem } from "@mui/material";
@@ -35,7 +35,7 @@ const ShortTest = () => {
     setCancelNewTestButton,
   } = useAppContext();
   const userToken = getItem("userToken");
-  
+
   const setIsVisibleMenuButton = useCallback(
     (isVisibleMenuButton) =>
       setItem("isVisibleMenuButton", isVisibleMenuButton),
@@ -186,13 +186,21 @@ const ShortTest = () => {
               </AccordionDetails>
             </Accordion>
           </div>
-
-          <FormControl>
-            <RadioGroup value={taskPoints} onChange={handleChange}>
-              <FormControlLabel value="2" control={<Radio />} label="2" />
-              <FormControlLabel value="1" control={<Radio />} label="1" />
-              <FormControlLabel value="0" control={<Radio />} label="0" />
-            </RadioGroup>
+          <FormControl className="page__width">
+            <InputLabel>Body</InputLabel>
+            <Select value={taskPoints} label="Body" onChange={handleChange}>
+              <MenuItem value="10">10</MenuItem>
+              <MenuItem value="9">9</MenuItem>
+              <MenuItem value="8">8</MenuItem>
+              <MenuItem value="7">7</MenuItem>
+              <MenuItem value="6">6</MenuItem>
+              <MenuItem value="5">5</MenuItem>
+              <MenuItem value="4">4</MenuItem>
+              <MenuItem value="3">3</MenuItem>
+              <MenuItem value="2">2</MenuItem>
+              <MenuItem value="1">1</MenuItem>
+              <MenuItem value="0">0</MenuItem>
+            </Select>
           </FormControl>
 
           <SwipeableDrawer
