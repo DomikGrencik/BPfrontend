@@ -13,9 +13,22 @@ import Test from "./js/pages/Test";
 import ShortTest from "./js/pages/ShortTest";
 import { useLocalStorage } from "./js/utils/useLocalStorage";
 import { STORAGE_KEY } from "./js/utils/variables";
+import createPalette from "@mui/material/styles/createPalette";
+import { createTheme, ThemeProvider } from "@mui/material";
 
 const AppContext = createContext();
 export const useAppContext = () => useContext(AppContext);
+
+const theme = createTheme({
+  palette: createPalette({
+    primary: {
+      main: "#2196f3",
+    },
+    secondary: {
+      main: "#f50057",
+    },
+  }),
+});
 
 const App = () => {
   const dataToStore = useMemo(
@@ -69,22 +82,24 @@ const App = () => {
           setIsShortTest,
         }}
       >
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route index element={<Splash />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/addtherapist" element={<AddTherapist />} />
-              <Route path="/addpatient" element={<AddPatient />} />
-              <Route path="/patient" element={<Patient />} />
-              <Route path="/therapist" element={<Therapist />} />
-              <Route path="/test" element={<Test />} />
-              <Route path="/shorttest" element={<ShortTest />} />
-              <Route path="*" element={<NoPage />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
+        <ThemeProvider theme={theme}>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Layout />}>
+                <Route index element={<Splash />} />
+                <Route path="/home" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/addtherapist" element={<AddTherapist />} />
+                <Route path="/addpatient" element={<AddPatient />} />
+                <Route path="/patient" element={<Patient />} />
+                <Route path="/therapist" element={<Therapist />} />
+                <Route path="/test" element={<Test />} />
+                <Route path="/shorttest" element={<ShortTest />} />
+                <Route path="*" element={<NoPage />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </ThemeProvider>
       </AppContext.Provider>
     );
   } else {
