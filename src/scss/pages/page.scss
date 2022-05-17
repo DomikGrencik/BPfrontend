@@ -4,10 +4,12 @@
   }
 
   &__width {
-    width: pxToRem(210);
+    width: 100%;
+    max-width: pxToRem(210);
   }
 
   &__width2 {
-    width: pxToRem(300);
+    width: 100%;
+    max-width: pxToRem(750);
   }
 }

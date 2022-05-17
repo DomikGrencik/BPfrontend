@@ -11,10 +11,14 @@ import Logout from "@mui/icons-material/Logout";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
-import { ListItemIcon } from "@mui/material";
 import { Divider } from "@mui/material";
 import { Modal } from "@mui/material";
 import { Button } from "@mui/material";
+import { TextField } from "@mui/material";
+import { InputAdornment } from "@mui/material";
+import { ListItemIcon } from "@mui/material";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { apiFetch } from "../utils/apiFetch";
 import { useAppContext } from "../../App";
 import { useNavigate } from "react-router-dom";
@@ -36,6 +40,7 @@ const MenuAppBar = () => {
   const userToken = getItem("userToken");
   const isPatient = getItem("isPatient");
   const isVisibleMenuButton = getItem("isVisibleMenuButton");
+  const isHomeScreen = getItem("isHomeScreen");
 
   const setIsVisibleMenuButton = useCallback(
     (isVisibleMenuButton) =>
@@ -46,16 +51,32 @@ const MenuAppBar = () => {
     (isHomeScreen) => setItem("isHomeScreen", isHomeScreen),
     [setItem]
   );
-  const isHomeScreen = getItem("isHomeScreen");
 
   const [anchorEl, setAnchorEl] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState({});
+
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => {
+    setOpen(false);
+    setPasswordProps({
+      password: "",
+      passwordRepeat: "",
+      showPassword: false,
+    });
+  };
   const [passwordProps, setPasswordProps] = useState({
     password: "",
     passwordRepeat: "",
     showPassword: false,
   });
+
+  const [formError, setFormError] = useState(false);
+  const [formErrorMsg, setFormErrorMsg] = useState("");
+
+  const handleChange = (prop) => (event) => {
+    setPasswordProps({ ...passwordProps, [prop]: event.target.value });
+  };
 
   const [openModal, setOpenModal] = useState(false);
   const handleOpenModal = () => setOpenModal(true);
@@ -67,8 +88,25 @@ const MenuAppBar = () => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
+  const handleCloseMenu = () => {
     setAnchorEl(null);
+  };
+
+  useEffect(() => {
+    if (passwordProps.password !== passwordProps.passwordRepeat) {
+      setFormError(true);
+      setFormErrorMsg("Hesla se nezhodují.");
+    } else {
+      setFormError(false);
+      setFormErrorMsg("");
+    }
+  }, [passwordProps.password, passwordProps.passwordRepeat]);
+
+  const handleClickShowPassword = () => {
+    setPasswordProps({
+      ...passwordProps,
+      showPassword: !passwordProps.showPassword,
+    });
   };
 
   // Gets general data of logged in user
@@ -80,7 +118,6 @@ const MenuAppBar = () => {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
-        setLoading,
       });
 
       if (response) {
@@ -98,6 +135,31 @@ const MenuAppBar = () => {
       }
     }
   }, [initialize, navigate, userToken]);
+
+  // Changes password of logged in user
+  const changePassword = useCallback(
+    async (event) => {
+      event.preventDefault();
+
+      const response = await apiFetch({
+        route: `/users/${profile.id}`,
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userToken}`,
+        },
+        body: { password: passwordProps.password },
+      });
+
+      if (response) {
+        handleClose();
+      } else {
+        initialize();
+        navigate("/", { replace: true });
+      }
+    },
+    [initialize, navigate, passwordProps.password, profile.id, userToken]
+  );
 
   // Logs out user, clears local storage
   const handleLogout = useCallback(async () => {
@@ -233,7 +295,11 @@ const MenuAppBar = () => {
               )}
             </>
           )}
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{ textAlign: "center", flexGrow: 1 }}
+          >
             3F
           </Typography>
           {userToken && (
@@ -256,11 +322,11 @@ const MenuAppBar = () => {
                       horizontal: "right",
                     }}
                     open={Boolean(anchorEl)}
-                    onClose={handleClose}
+                    onClose={handleCloseMenu}
                   >
                     <MenuItem
                       className="flex flex--column flex--align-center"
-                      onClick={handleClose}
+                      onClick={handleCloseMenu}
                     >
                       <h3>Můj profil</h3>
                     </MenuItem>
@@ -273,7 +339,11 @@ const MenuAppBar = () => {
                       <h4>{profile.login}</h4>
                     </MenuItem>
                     <Divider />
-                    <MenuItem onClick={() => {}}>
+                    <MenuItem
+                      onClick={() => {
+                        handleOpen();
+                      }}
+                    >
                       <ListItemIcon>
                         <KeyIcon fontSize="small" />
                       </ListItemIcon>
@@ -282,7 +352,7 @@ const MenuAppBar = () => {
                     <MenuItem
                       onClick={() => {
                         handleLogout();
-                        handleClose();
+                        handleCloseMenu();
                       }}
                       // style={{ color: "red" }}
                     >
@@ -337,6 +407,70 @@ const MenuAppBar = () => {
               Ano
             </Button>
           </div>
+        </Box>
+      </Modal>
+
+      <Modal open={open} onClose={handleClose}>
+        <Box className="flex flex--column flex--justify-center flex--align-center modal page__form">
+          <form
+            onSubmit={changePassword}
+            className="flex flex--column flex--justify-center flex--align-center page__form"
+          >
+            <h4>Změnit heslo</h4>
+            {[
+              { label: "Nové heslo", value: "password" },
+              { label: "Zopakovat heslo", value: "passwordRepeat" },
+            ].map(({ label, value }, index) => (
+              <TextField
+                key={index}
+                value={passwordProps[value]}
+                onChange={handleChange(value)}
+                label={label}
+                variant="outlined"
+                type={passwordProps.showPassword ? "text" : "password"}
+                error={formError}
+                helperText={formErrorMsg ? formErrorMsg : "minimálne 8 znaků"}
+                className="page__width"
+                required
+                inputProps={{ minLength: 8 }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={handleClickShowPassword} edge="end">
+                        {passwordProps.showPassword ? (
+                          <VisibilityOff />
+                        ) : (
+                          <Visibility />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            ))}
+            <div className="flex flex--justify-space-between page__form">
+              <Button
+                onClick={() => {
+                  handleClose();
+                }}
+                type="button"
+                sx={{ width: 100 }}
+                variant="outlined"
+                size="small"
+                color="error"
+              >
+                Zrušit
+              </Button>
+              <Button
+                type="submit"
+                sx={{ width: 100 }}
+                variant="outlined"
+                size="small"
+              >
+                Změnit
+              </Button>
+            </div>
+          </form>
         </Box>
       </Modal>
     </Box>

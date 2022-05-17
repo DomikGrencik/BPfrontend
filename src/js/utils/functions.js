@@ -84,3 +84,5 @@ export const forceFocus = (element) => {
     }
   }
 };
+
+export const mapGender = (gender) => (gender === "M" ? "muž" : "žena");

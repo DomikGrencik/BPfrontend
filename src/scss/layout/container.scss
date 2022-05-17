@@ -2,6 +2,6 @@
   @include container;
 
   &--default {
-    @include container(pxToRem(50), pxToRem(50));
+    @include container(pxToRem(60), pxToRem(90), pxToRem(20));
   }
 }

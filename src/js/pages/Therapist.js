@@ -153,7 +153,7 @@ const Therapist = () => {
     !_.isEmpty(therapist) && (
       <main className="page page__form container--default flex--grow flex flex--column flex--justify-center flex--align-center">
         <h2>Profil logopeda</h2>
-        <div className="page__width ">
+        <div className="page__width">
           <List>
             <ListItem
               sx={{ height: 48 }}
@@ -178,17 +178,23 @@ const Therapist = () => {
               <h4>{therapist.login}</h4>
             </ListItem>
           </List>
-          <Button
-            onClick={() => {
-              handleOpen();
-              setIsChangeName(false);
-            }}
-            sx={{ width: 210, height: 56, marginTop: 1 }}
-            variant="outlined"
-            startIcon={<KeyIcon />}
-          >
-            Změnit heslo
-          </Button>
+          <div className="flex flex--justify-center">
+            <Button
+              onClick={() => {
+                handleOpen();
+                setIsChangeName(false);
+              }}
+              sx={{
+                width: 210,
+                height: 56,
+                marginTop: 1,
+              }}
+              variant="outlined"
+              startIcon={<KeyIcon />}
+            >
+              Změnit heslo
+            </Button>
+          </div>
         </div>
 
         <Modal open={open} onClose={handleClose}>

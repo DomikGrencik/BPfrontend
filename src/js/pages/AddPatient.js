@@ -188,7 +188,11 @@ const AddPatient = () => {
         </Fab>
         <Fab
           type="submit"
-          sx={{ position: "fixed", bottom: 20, right: 20 }}
+          sx={{
+            position: "fixed",
+            bottom: 20,
+            right: 20,
+          }}
           color="primary"
           variant="extended"
         >

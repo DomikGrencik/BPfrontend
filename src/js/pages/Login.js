@@ -52,12 +52,16 @@ const Login = () => {
           },
         });
 
-        setIsAdmin(user.data.role.includes("admin"));
+        if (user) {
+          setIsAdmin(user.data.role.includes("admin"));
+        } else {
+          setIsAdmin(false);
+        }
 
         navigate("/", { replace: true });
       } else {
         setFormError(true);
-        setFormErrorMsg(response?.message);
+        setFormErrorMsg("Chybný login nebo heslo.");
       }
     },
     [navigate, setIsAdmin, setUserToken]

@@ -32,6 +32,7 @@ import { useAppContext } from "../../App";
 import { useNavigate } from "react-router-dom";
 import _ from "lodash";
 import Chart from "react-apexcharts";
+import { mapGender } from "../utils/functions";
 
 const Patient = () => {
   const {
@@ -62,6 +63,64 @@ const Patient = () => {
   const [isDeleteTF, setIsDeleteTF] = useState(false);
   const [isOptionsTF, setIsOptionsTF] = useState(true);
 
+  const [graphPointsTest, setGraphPointsTest] = useState([]);
+  const handleCheckedTest = (testName, testId) => (event) => {
+    const [test] = graphPointsTest.filter(({ name }) => name === testName);
+    let newGraphPoints;
+
+    if (!test) {
+      const [data] = tests.filter(({ id_test }) => id_test === testId);
+      const { dx, ...graphData } = data.points;
+      newGraphPoints = [
+        ...graphPointsTest,
+        {
+          name: testName,
+          show: event.target.checked,
+          data: Object.values(graphData),
+        },
+      ];
+    } else {
+      newGraphPoints = graphPointsTest.map(({ name, show, ...rest }) => {
+        if (name === testName) {
+          show = event.target.checked;
+        }
+        return { name, show, ...rest };
+      });
+    }
+
+    setGraphPointsTest(newGraphPoints);
+  };
+
+  const [graphPointsShortTest, setGraphPointsShortTest] = useState([]);
+  const handleCheckedShortTest = (testName, testId) => (event) => {
+    const [test] = graphPointsShortTest.filter(({ name }) => name === testName);
+    let newGraphPoints;
+
+    if (!test) {
+      const [data] = shortTests.filter(
+        ({ id_short_test }) => id_short_test === testId
+      );
+      const { dx, ...graphData } = data.points;
+      newGraphPoints = [
+        ...graphPointsShortTest,
+        {
+          name: testName,
+          show: event.target.checked,
+          data: Object.values(graphData),
+        },
+      ];
+    } else {
+      newGraphPoints = graphPointsShortTest.map(({ name, show, ...rest }) => {
+        if (name === testName) {
+          show = event.target.checked;
+        }
+        return { name, show, ...rest };
+      });
+    }
+
+    setGraphPointsShortTest(newGraphPoints);
+  };
+
   const [openModal, setOpenModal] = useState(false);
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
@@ -76,6 +135,7 @@ const Patient = () => {
 
   const navigate = useNavigate();
 
+  // Sums points of each test to defined categories
   const getTestDX = useCallback(
     async (id_test) => {
       const response = await apiFetch({
@@ -87,9 +147,55 @@ const Patient = () => {
       });
 
       if (response) {
-        let dx = 0;
-        response.forEach((element) => (dx += parseFloat(element.points)));
-        return dx;
+        const categories = {
+          lips: 0,
+          jaw: 0,
+          tongue: 0,
+          resp: 0,
+          respPhon: 0,
+          phon: 0,
+          art: 0,
+          pros: 0,
+          intel: 0,
+        };
+
+        response.forEach((element) => {
+          const floatVal = parseFloat(element.points);
+          if (_.inRange(element.id_task, 1, 6)) {
+            categories.lips += floatVal;
+          }
+          if (_.inRange(element.id_task, 6, 11)) {
+            categories.jaw += floatVal;
+          }
+          if (_.inRange(element.id_task, 11, 16)) {
+            categories.tongue += floatVal;
+          }
+          if (_.inRange(element.id_task, 16, 21)) {
+            categories.resp += floatVal;
+          }
+          if (_.inRange(element.id_task, 21, 26)) {
+            categories.respPhon += floatVal;
+          }
+          if (_.inRange(element.id_task, 26, 31)) {
+            categories.phon += floatVal;
+          }
+          if (_.inRange(element.id_task, 31, 36)) {
+            categories.art += floatVal;
+          }
+          if (_.inRange(element.id_task, 36, 41)) {
+            categories.pros += floatVal;
+          }
+          if (_.inRange(element.id_task, 41, 46)) {
+            categories.intel += floatVal;
+          }
+        });
+
+        const dx = Object.values(categories).reduce((a, b) => a + b);
+
+        return {
+          dx,
+          ...categories,
+        };
       } else {
         initialize();
         navigate("/", { replace: true });
@@ -109,9 +215,55 @@ const Patient = () => {
       });
 
       if (response) {
-        let dx = 0;
-        response.forEach((element) => (dx += parseFloat(element.points)));
-        return dx;
+        const categories = {
+          lips: 0,
+          jaw: 0,
+          tongue: 0,
+          resp: 0,
+          respPhon: 0,
+          phon: 0,
+          art: 0,
+          pros: 0,
+          intel: 0,
+        };
+
+        response.forEach((element) => {
+          const floatVal = parseFloat(element.points);
+          if (element.id_task === 46) {
+            categories.lips += floatVal;
+          }
+          if (element.id_task === 47) {
+            categories.jaw += floatVal;
+          }
+          if (element.id_task === 48) {
+            categories.tongue += floatVal;
+          }
+          if (element.id_task === 49) {
+            categories.resp += floatVal;
+          }
+          if (element.id_task === 50) {
+            categories.respPhon += floatVal;
+          }
+          if (element.id_task === 51) {
+            categories.phon += floatVal;
+          }
+          if (element.id_task === 52) {
+            categories.art += floatVal;
+          }
+          if (element.id_task === 53) {
+            categories.pros += floatVal;
+          }
+          if (element.id_task === 54) {
+            categories.intel += floatVal;
+          }
+        });
+
+        const dx = Object.values(categories).reduce((a, b) => a + b);
+
+        return {
+          dx,
+          ...categories,
+        };
       } else {
         initialize();
         navigate("/", { replace: true });
@@ -162,7 +314,7 @@ const Patient = () => {
         setLoading(true);
         const tests = await Promise.all(
           response.reverse().map(async (test) => {
-            test.dx = await getTestDX(test.id_test);
+            test.points = await getTestDX(test.id_test);
             return test;
           })
         );
@@ -235,7 +387,7 @@ const Patient = () => {
         setLoading(true);
         const shortTests = await Promise.all(
           response.reverse().map(async (shortTest) => {
-            shortTest.dx = await getShortTestDX(shortTest.id_short_test);
+            shortTest.points = await getShortTestDX(shortTest.id_short_test);
             return shortTest;
           })
         );
@@ -339,16 +491,6 @@ const Patient = () => {
         ],
       },
     },
-    series: [
-      {
-        name: "series-1",
-        data: [8, 6, 7, 9, 6, 5, 8, 7, 9],
-      },
-      {
-        name: "series-2",
-        data: [6, 5, 4, 7, 4, 2, 5, 4, 7],
-      },
-    ],
   };
 
   return _.isEmpty(patient) ? (
@@ -356,7 +498,7 @@ const Patient = () => {
       <CircularProgress />
     </div>
   ) : (
-    <main className="page page__form container--default flex--grow flex flex--column flex--justify-center flex--align-center">
+    <main className="page page__form container--default flex--grow flex flex--column flex--align-center">
       <div className="page__width2">
         <List sx={{ marginBottom: 4 }}>
           <ListItem
@@ -373,17 +515,31 @@ const Patient = () => {
             }
           >
             <h2>{`${patient.id_patient}, ${patient.name} ${patient.surename}`}</h2>
-            <div>{`${patient.birth_year}, ${patient.gender}`}</div>
+            <div>{`${patient.birth_year}, ${mapGender(patient.gender)}`}</div>
           </ListItem>
         </List>
-        {/* <div className="graph">
-          <Chart
-            options={dataGraph.options}
-            series={dataGraph.series}
-            type="line"
-            width="500"
-          />
-        </div> */}
+        {(() => {
+          const seriesTest = graphPointsTest.filter(
+            ({ show }) => show === true
+          );
+          const seriesShortTest = graphPointsShortTest.filter(
+            ({ show }) => show === true
+          );
+          const series = [...seriesTest, ...seriesShortTest];
+          return series.length ? (
+            <div className="graph">
+              <Chart
+                options={dataGraph.options}
+                series={series}
+                type="line"
+                width="100%"
+                className="graph__component"
+              />
+            </div>
+          ) : (
+            <></>
+          );
+        })()}
         <h3 style={{ marginTop: 8, marginBottom: 8 }}>
           Základné testy pacienta
         </h3>
@@ -411,8 +567,10 @@ const Patient = () => {
                     >
                       DX
                     </TableCell>
+                    <TableCell></TableCell>
                     <TableCell
                       sx={{ color: "rgba(0, 0, 0, 0.6)" }}
+                      width={50}
                       align="center"
                     >
                       Zobrazit
@@ -425,7 +583,7 @@ const Patient = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {tests.map((row) => (
+                  {tests.map((row, index) => (
                     <TableRow
                       key={row.id_test}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -442,13 +600,19 @@ const Patient = () => {
                         sx={{ color: "rgba(0, 0, 0, 0.6)" }}
                         align="center"
                       >
-                        {row.dx}
+                        {row.points.dx}
                       </TableCell>
+                      <TableCell></TableCell>
                       <TableCell
                         sx={{ color: "rgba(0, 0, 0, 0.6)" }}
                         align="center"
                       >
-                        <Checkbox />
+                        <Checkbox
+                          onChange={handleCheckedTest(
+                            `${row.created_at}`,
+                            row.id_test
+                          )}
+                        />
                       </TableCell>
                       <TableCell
                         sx={{ color: "rgba(0, 0, 0, 0.6)" }}
@@ -499,8 +663,10 @@ const Patient = () => {
                     >
                       DX
                     </TableCell>
+                    <TableCell></TableCell>
                     <TableCell
                       sx={{ color: "rgba(0, 0, 0, 0.6)" }}
+                      width={50}
                       align="center"
                     >
                       Zobrazit
@@ -513,7 +679,7 @@ const Patient = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {shortTests.map((row) => (
+                  {shortTests.map((row, index) => (
                     <TableRow
                       key={row.id_short_test}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -530,13 +696,19 @@ const Patient = () => {
                         sx={{ color: "rgba(0, 0, 0, 0.6)" }}
                         align="center"
                       >
-                        {row.dx}
+                        {row.points.dx}
                       </TableCell>
+                      <TableCell></TableCell>
                       <TableCell
                         sx={{ color: "rgba(0, 0, 0, 0.6)" }}
                         align="center"
                       >
-                        <Checkbox />
+                        <Checkbox
+                          onChange={handleCheckedShortTest(
+                            `${row.created_at} (zjed.)`,
+                            row.id_short_test
+                          )}
+                        />
                       </TableCell>
                       <TableCell
                         sx={{ color: "rgba(0, 0, 0, 0.6)" }}

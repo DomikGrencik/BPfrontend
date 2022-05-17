@@ -1,3 +1,5 @@
+@use "sass:math";
+
 @mixin focus-ring($color: $c-main) {
   box-shadow: 0 0 0 $outline-width $color;
 }
@@ -104,7 +106,7 @@
   $count: length($responsive-breakpoints);
 
   @if $max != $min {
-    $reducer: ($max - $min) / $count;
+    $reducer: math.div(($max - $min), $count);
   }
 
   @if $important {
@@ -174,7 +176,7 @@
   margin-left: auto;
   margin-right: auto;
 
-  @include media("<", $container-breakpoint) {
+  @include media("smaller", $container-breakpoint) {
     max-width: calc(100vw - #{$scrollbar-width} - 2 * #{$side-max});
   }
 
@@ -182,14 +184,14 @@
   $count: length($responsive-breakpoints);
 
   @if $side-max != $side-min {
-    $reducer: ($side-max - $side-min) / $count;
+    $reducer: math.div(($side-max - $side-min), $count);
   }
 
   @if $reducer {
     @for $i from 1 to $count + 1 {
       $responsive-breakpoint: nth($responsive-breakpoints, $i);
 
-      @include media("<", $responsive-breakpoint) {
+      @include media("smaller", $responsive-breakpoint) {
         max-width: calc(
           100vw - #{$scrollbar-width} - 2 * #{$side-max - $reducer * $i}
         );

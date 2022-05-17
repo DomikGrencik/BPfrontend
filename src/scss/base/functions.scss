@@ -1,12 +1,14 @@
+@use "sass:math";
+
 @function stripUnit($num) {
-  @return $num / ($num * 0 + 1);
+  @return math.div($num, ($num * 0 + 1));
 }
 
 @function pxToRem($props) {
   $length: length($props);
 
   @if $length == 1 {
-    @return (stripUnit($props) / stripUnit($font-size-default)) * 1rem;
+    @return math.div(stripUnit($props), stripUnit($font-size-default)) * 1rem;
   } @else if $length > 1 and $length <= 4 {
     $result: "";
 
@@ -18,7 +20,7 @@
       }
 
       $result: $result +
-        (stripUnit($prop) / stripUnit($font-size-default)) *
+        math.div(stripUnit($prop), stripUnit($font-size-default)) *
         1rem;
     }
 

@@ -1,8 +1,12 @@
-import React, { useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { TextField } from "@mui/material";
 import { Fab } from "@mui/material";
+import { InputAdornment } from "@mui/material";
+import { IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { apiFetch } from "../utils/apiFetch";
 import { useAppContext } from "../../App";
 import { useNavigate } from "react-router-dom";
@@ -11,9 +15,39 @@ const AddTherapist = () => {
   const { initialize, getItem } = useAppContext();
   const userToken = getItem("userToken");
 
-  const TherapistData = useRef({ name: "", surename: "", password: "" });
+  const TherapistData = useRef({ name: "", surename: "" });
+
+  const [passwordProps, setPasswordProps] = useState({
+    password: "",
+    passwordRepeat: "",
+    showPassword: false,
+  });
+
+  const [formError, setFormError] = useState(false);
+  const [formErrorMsg, setFormErrorMsg] = useState("");
+
+  const handleChange = (prop) => (event) => {
+    setPasswordProps({ ...passwordProps, [prop]: event.target.value });
+  };
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (passwordProps.password !== passwordProps.passwordRepeat) {
+      setFormError(true);
+      setFormErrorMsg("Hesla se nezhodují.");
+    } else {
+      setFormError(false);
+      setFormErrorMsg("");
+    }
+  }, [passwordProps.password, passwordProps.passwordRepeat]);
+
+  const handleClickShowPassword = () => {
+    setPasswordProps({
+      ...passwordProps,
+      showPassword: !passwordProps.showPassword,
+    });
+  };
 
   const submitForm = useCallback(
     async (event) => {
@@ -26,7 +60,7 @@ const AddTherapist = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${userToken}`,
         },
-        body: TherapistData.current,
+        body: { ...TherapistData.current, password: passwordProps.password },
       });
 
       if (response) {
@@ -36,7 +70,7 @@ const AddTherapist = () => {
         navigate("/", { replace: true });
       }
     },
-    [initialize, navigate, userToken]
+    [initialize, navigate, passwordProps.password, userToken]
   );
 
   return (
@@ -62,17 +96,38 @@ const AddTherapist = () => {
           label="Příjmení"
           variant="outlined"
         />
-        <TextField
-          onChange={(event) =>
-            (TherapistData.current.password = event.target.value)
-          }
-          required
-          label="Heslo"
-          variant="outlined"
-          type={"password"}
-          helperText={"minimálne 8 znaků"}
-          inputProps={{ minLength: 8 }}
-        />
+        {[
+          { label: "Nové heslo", value: "password" },
+          { label: "Zopakovat heslo", value: "passwordRepeat" },
+        ].map(({ label, value }, index) => (
+          <TextField
+            key={index}
+            value={passwordProps[value]}
+            onChange={handleChange(value)}
+            label={label}
+            variant="outlined"
+            type={passwordProps.showPassword ? "text" : "password"}
+            error={formError}
+            helperText={formErrorMsg ? formErrorMsg : "minimálne 8 znaků"}
+            className="page__width"
+            required
+            inputProps={{ minLength: 8 }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={handleClickShowPassword} edge="end">
+                    {passwordProps.showPassword ? (
+                      <VisibilityOff />
+                    ) : (
+                      <Visibility />
+                    )}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        ))}
+
         <Fab
           onClick={() => {
             navigate("/home", { replace: true });
@@ -86,7 +141,11 @@ const AddTherapist = () => {
         </Fab>
         <Fab
           type="submit"
-          sx={{ position: "fixed", bottom: 20, right: 20 }}
+          sx={{
+            position: "fixed",
+            bottom: 20,
+            right: 20,
+          }}
           color="primary"
           variant="extended"
         >

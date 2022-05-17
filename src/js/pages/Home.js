@@ -144,7 +144,7 @@ const Home = () => {
     <main className="page container--default flex--grow flex">
       <div className="page__form flex--grow flex flex--column flex--align-center">
         <TextField
-          sx={{ width: 210 }}
+          className="page__width2"
           label="Hledat"
           variant="outlined"
           type="search"
@@ -157,7 +157,7 @@ const Home = () => {
           }}
           onChange={onChange}
         />
-        <div className="page__width ">
+        <div className="page__width2">
           {/* Therapists */}
           {isAdmin && (
             <>
@@ -252,7 +252,13 @@ const Home = () => {
                       }}
                     >
                       <ListItemText
-                        primary={patient.id_patient + ", " + patient.initials}
+                        primary={
+                          patient.id_patient +
+                          ", " +
+                          patient.name +
+                          " " +
+                          patient.surename
+                        }
                       />
                     </ListItemButton>
                   </ListItem>

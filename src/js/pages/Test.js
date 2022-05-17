@@ -241,7 +241,11 @@ const Test = () => {
               setIdTask(idTask + 1);
               setTaskPoints("");
             }}
-            sx={{ position: "fixed", bottom: 20, right: 20 }}
+            sx={{
+              position: "fixed",
+              bottom: 20,
+              right: 20,
+            }}
             color="primary"
             variant="extended"
           >
@@ -257,7 +261,11 @@ const Test = () => {
               setIsVisibleProfileButton(true);
               setCancelNewTestButton(false);
             }}
-            sx={{ position: "fixed", bottom: 20, right: 20 }}
+            sx={{
+              position: "fixed",
+              bottom: 20,
+              right: 20,
+            }}
             color="success"
             variant="extended"
           >
