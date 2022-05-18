@@ -37,7 +37,6 @@ const App = () => {
       userId: "",
       isAdmin: "",
       isPatient: "",
-      isVisibleMenuButton: "",
     }),
     []
   );
@@ -47,6 +46,7 @@ const App = () => {
   const [isOpenedDrawer, setIsOpenedDrawer] = useState(false);
   const [isShortTest, setIsShortTest] = useState(true);
   const [isEditTest, setIsEditTest] = useState(true);
+  const [isVisibleNavButton, setIsVisibleNavButton] = useState(true);
 
   const toggleDrawer = (open) => (event) => {
     if (
@@ -75,7 +75,10 @@ const App = () => {
           toggleDrawer,
           isShortTest,
           setIsShortTest,
-          isEditTest, setIsEditTest
+          isEditTest,
+          setIsEditTest,
+          isVisibleNavButton,
+          setIsVisibleNavButton,
         }}
       >
         <ThemeProvider theme={theme}>

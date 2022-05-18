@@ -28,22 +28,16 @@ const MenuAppBar = () => {
   const {
     initialize,
     getItem,
-    setItem,
     isOpenedDrawer,
     toggleDrawer,
     testId,
     isShortTest,
     isEditTest,
+    isVisibleNavButton,
+    setIsVisibleNavButton,
   } = useAppContext();
   const userToken = getItem("userToken");
   const isPatient = getItem("isPatient");
-  const isVisibleMenuButton = getItem("isVisibleMenuButton");
-
-  const setIsVisibleMenuButton = useCallback(
-    (isVisibleMenuButton) =>
-      setItem("isVisibleMenuButton", isVisibleMenuButton),
-    [setItem]
-  );
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [profile, setProfile] = useState({});
@@ -183,19 +177,12 @@ const MenuAppBar = () => {
 
     if (response) {
       handleCloseModal();
-      setIsVisibleMenuButton(true);
       navigate("/patient", { replace: true });
     } else {
       initialize();
       navigate("/", { replace: true });
     }
-  }, [
-    initialize,
-    navigate,
-    setIsVisibleMenuButton,
-    testId,
-    userToken,
-  ]);
+  }, [initialize, navigate, testId, userToken]);
 
   // Deletes short test
   const deleteShortTest = useCallback(async () => {
@@ -209,13 +196,12 @@ const MenuAppBar = () => {
 
     if (response) {
       handleCloseModal();
-      setIsVisibleMenuButton(true);
       navigate("/patient", { replace: true });
     } else {
       initialize();
       navigate("/", { replace: true });
     }
-  }, [initialize, navigate, setIsVisibleMenuButton, testId, userToken]);
+  }, [initialize, navigate, testId, userToken]);
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -229,7 +215,7 @@ const MenuAppBar = () => {
         >
           {userToken && (
             <>
-              {isVisibleMenuButton && (
+              {isVisibleNavButton && (
                 <>
                   {location.pathname === "/home" && (
                     <>
@@ -359,6 +345,7 @@ const MenuAppBar = () => {
                       onClick={() => {
                         handleLogout();
                         handleCloseMenu();
+                        setIsVisibleNavButton(false);
                       }}
                       // style={{ color: "red" }}
                     >

@@ -27,18 +27,11 @@ const ShortTest = () => {
   const {
     initialize,
     getItem,
-    setItem,
     testId,
     isOpenedDrawer,
     toggleDrawer,
   } = useAppContext();
   const userToken = getItem("userToken");
-
-  const setIsVisibleMenuButton = useCallback(
-    (isVisibleMenuButton) =>
-      setItem("isVisibleMenuButton", isVisibleMenuButton),
-    [setItem]
-  );
 
   const [tasks, setTasks] = useState([]);
   const [idTask, setIdTask] = useState(0);
@@ -269,7 +262,6 @@ const ShortTest = () => {
           <Fab
             onClick={() => {
               navigate("/patient", { replace: true });
-              setIsVisibleMenuButton(true);
             }}
             sx={{
               position: "fixed",

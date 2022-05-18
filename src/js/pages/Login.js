@@ -10,7 +10,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const Login = () => {
-  const { setItem } = useAppContext();
+  const { setItem, setIsVisibleNavButton } = useAppContext();
   const setUserToken = useCallback(
     (token) => setItem("userToken", token),
     [setItem]
@@ -58,13 +58,14 @@ const Login = () => {
           setIsAdmin(false);
         }
 
+        setIsVisibleNavButton(false);
         navigate("/", { replace: true });
       } else {
         setFormError(true);
         setFormErrorMsg("Chybný login nebo heslo.");
       }
     },
-    [navigate, setIsAdmin, setUserToken]
+    [navigate, setIsAdmin, setIsVisibleNavButton, setUserToken]
   );
 
   return (

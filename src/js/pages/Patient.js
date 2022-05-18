@@ -38,7 +38,6 @@ const Patient = () => {
   const {
     initialize,
     getItem,
-    setItem,
     testId,
     setTestId,
     isShortTest,
@@ -47,12 +46,6 @@ const Patient = () => {
   } = useAppContext();
   const userToken = getItem("userToken");
   const userId = getItem("userId");
-
-  const setIsVisibleMenuButton = useCallback(
-    (isVisibleMenuButton) =>
-      setItem("isVisibleMenuButton", isVisibleMenuButton),
-    [setItem]
-  );
 
   const [patient, setPatient] = useState({});
   const [newPatient, setNewPatient] = useState({});
@@ -749,7 +742,6 @@ const Patient = () => {
                     ? navigate("/shorttest", { replace: true })
                     : navigate("/test", { replace: true });
                   handleCloseModal();
-                  setIsVisibleMenuButton(false);
                   setIsEditTest(true);
                 }}
                 sx={{ width: 210, height: 56 }}
@@ -824,7 +816,6 @@ const Patient = () => {
               handleCloseModalTest();
               addTest();
               setIsShortTest(false);
-              setIsVisibleMenuButton(false);
               setIsEditTest(false);
             }}
             sx={{ width: 210, height: 56 }}
@@ -837,7 +828,6 @@ const Patient = () => {
               handleCloseModalTest();
               addShortTest();
               setIsShortTest(true);
-              setIsVisibleMenuButton(false);
               setIsEditTest(false);
             }}
             sx={{ width: 210, height: 56 }}

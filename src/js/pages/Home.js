@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/apiFetch";
 
 const Home = () => {
-  const { initialize, getItem, setItem } = useAppContext();
+  const { initialize, getItem, setItem, setIsVisibleNavButton } = useAppContext();
   const userToken = getItem("userToken");
   const isAdmin = getItem("isAdmin");
   const setUserId = (id) => setItem("userId", id);
@@ -27,11 +27,6 @@ const Home = () => {
     [setItem]
   );
   const isPatient = getItem("isPatient");
-  const setIsVisibleMenuButton = useCallback(
-    (isVisibleMenuButton) =>
-      setItem("isVisibleMenuButton", isVisibleMenuButton),
-    [setItem]
-  );
 
   const [input, setInput] = useState("");
   const [id, setId] = useState("");
@@ -119,20 +114,12 @@ const Home = () => {
     if (response) {
       setTherapists(therapists.filter((therapist) => therapist.id !== id));
       setTherapistWasDeleted(!therapistWasDeleted);
-      setIsVisibleMenuButton(false);
+      setIsVisibleNavButton(false);
     } else {
       initialize();
       navigate("/", { replace: true });
     }
-  }, [
-    id,
-    initialize,
-    navigate,
-    setIsVisibleMenuButton,
-    therapistWasDeleted,
-    therapists,
-    userToken,
-  ]);
+  }, [id, initialize, navigate, setIsVisibleNavButton, therapistWasDeleted, therapists, userToken]);
 
   const deletePatient = useCallback(async () => {
     const response = await apiFetch({
@@ -145,12 +132,12 @@ const Home = () => {
 
     if (response) {
       setPatients(patients.filter((patient) => patient.id_patient !== id));
-      setIsVisibleMenuButton(false);
+      setIsVisibleNavButton(false);
     } else {
       initialize();
       navigate("/", { replace: true });
     }
-  }, [id, initialize, navigate, patients, setIsVisibleMenuButton, userToken]);
+  }, [id, initialize, navigate, patients, setIsVisibleNavButton, userToken]);
 
   return loading ? (
     <div className="flex--grow flex flex--justify-center flex--align-center">
@@ -209,7 +196,7 @@ const Home = () => {
                             navigate("/therapist", { replace: true });
                             setUserId(therapist.id);
                             setIsPatient(false);
-                            setIsVisibleMenuButton(true);
+                            setIsVisibleNavButton(true);
                           }}
                         >
                           <ListItemText
@@ -262,7 +249,7 @@ const Home = () => {
                         navigate("/patient", { replace: true });
                         setUserId(patient.id_patient);
                         setIsPatient(true);
-                        setIsVisibleMenuButton(true);
+                        setIsVisibleNavButton(true);
                       }}
                     >
                       <ListItemText
