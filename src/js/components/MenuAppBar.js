@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -28,27 +29,19 @@ const MenuAppBar = () => {
     initialize,
     getItem,
     setItem,
-    isVisibleProfileButton,
-    setIsVisibleProfileButton,
     isOpenedDrawer,
     toggleDrawer,
-    cancelNewTestButton,
-    setCancelNewTestButton,
     testId,
     isShortTest,
+    isEditTest,
   } = useAppContext();
   const userToken = getItem("userToken");
   const isPatient = getItem("isPatient");
   const isVisibleMenuButton = getItem("isVisibleMenuButton");
-  const isHomeScreen = getItem("isHomeScreen");
 
   const setIsVisibleMenuButton = useCallback(
     (isVisibleMenuButton) =>
       setItem("isVisibleMenuButton", isVisibleMenuButton),
-    [setItem]
-  );
-  const setIsHomeScreen = useCallback(
-    (isHomeScreen) => setItem("isHomeScreen", isHomeScreen),
     [setItem]
   );
 
@@ -83,6 +76,9 @@ const MenuAppBar = () => {
   const handleCloseModal = () => setOpenModal(false);
 
   const navigate = useNavigate();
+
+  const location = useLocation();
+  console.log(location);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -187,8 +183,6 @@ const MenuAppBar = () => {
 
     if (response) {
       handleCloseModal();
-      setCancelNewTestButton(false);
-      setIsVisibleProfileButton(true);
       setIsVisibleMenuButton(true);
       navigate("/patient", { replace: true });
     } else {
@@ -198,9 +192,7 @@ const MenuAppBar = () => {
   }, [
     initialize,
     navigate,
-    setCancelNewTestButton,
     setIsVisibleMenuButton,
-    setIsVisibleProfileButton,
     testId,
     userToken,
   ]);
@@ -217,40 +209,35 @@ const MenuAppBar = () => {
 
     if (response) {
       handleCloseModal();
-      setCancelNewTestButton(false);
-      setIsVisibleProfileButton(true);
       setIsVisibleMenuButton(true);
       navigate("/patient", { replace: true });
     } else {
       initialize();
       navigate("/", { replace: true });
     }
-  }, [
-    initialize,
-    navigate,
-    setCancelNewTestButton,
-    setIsVisibleMenuButton,
-    setIsVisibleProfileButton,
-    testId,
-    userToken,
-  ]);
+  }, [initialize, navigate, setIsVisibleMenuButton, testId, userToken]);
 
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
-        <Toolbar>
+        <Toolbar
+          style={{
+            position: "relative",
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
           {userToken && (
             <>
               {isVisibleMenuButton && (
                 <>
-                  {isHomeScreen ? (
+                  {location.pathname === "/home" && (
                     <>
                       <IconButton
                         onClick={() => {
                           navigate(isPatient ? "/patient" : "/therapist", {
                             replace: true,
                           });
-                          setIsHomeScreen(false);
                         }}
                         size="large"
                         edge="start"
@@ -260,37 +247,43 @@ const MenuAppBar = () => {
                         <CloseIcon />
                       </IconButton>
                     </>
-                  ) : (
-                    <>
-                      <IconButton
-                        onClick={() => {
-                          navigate("/", {
-                            replace: true,
-                          });
-                          setIsHomeScreen(true);
-                        }}
-                        size="large"
-                        edge="start"
-                        color="inherit"
-                        sx={{ mr: 2 }}
-                      >
-                        <MenuIcon />
-                      </IconButton>
-                    </>
                   )}
                 </>
               )}
-              {cancelNewTestButton && (
+
+              {(location.pathname === "/patient" ||
+                location.pathname === "/therapist") && (
                 <>
                   <IconButton
-                    onClick={handleOpenModal}
+                    onClick={() => {
+                      navigate("/home", {
+                        replace: true,
+                      });
+                    }}
                     size="large"
                     edge="start"
                     color="inherit"
                     sx={{ mr: 2 }}
                   >
-                    <CloseIcon color="error" />
+                    <MenuIcon />
                   </IconButton>
+                </>
+              )}
+
+              {!isEditTest && (
+                <>
+                  {(location.pathname === "/test" ||
+                    location.pathname === "/shorttest") && (
+                    <IconButton
+                      onClick={handleOpenModal}
+                      size="large"
+                      edge="start"
+                      color="inherit"
+                      sx={{ mr: 2 }}
+                    >
+                      <CloseIcon color="error" />
+                    </IconButton>
+                  )}
                 </>
               )}
             </>
@@ -298,13 +291,25 @@ const MenuAppBar = () => {
           <Typography
             variant="h6"
             component="div"
-            sx={{ textAlign: "center", flexGrow: 1 }}
+            sx={{
+              textAlign: "center",
+              position: "absolute",
+              left: 0,
+              height: "fit-content",
+              width: "100%",
+              pointerEvents: "none",
+            }}
           >
             3F
           </Typography>
+          <span></span>
           {userToken && (
             <div>
-              {isVisibleProfileButton ? (
+              {(location.pathname === "/home" ||
+                location.pathname === "/patient" ||
+                location.pathname === "/therapist" ||
+                location.pathname === "/addpatient" ||
+                location.pathname === "/addtherapist") && (
                 <>
                   <IconButton size="large" onClick={handleMenu} color="inherit">
                     <AccountCircle />
@@ -364,7 +369,10 @@ const MenuAppBar = () => {
                     </MenuItem>
                   </Menu>
                 </>
-              ) : (
+              )}
+
+              {(location.pathname === "/test" ||
+                location.pathname === "/shorttest") && (
                 <>
                   <IconButton
                     size="large"

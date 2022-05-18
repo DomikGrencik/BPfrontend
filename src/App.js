@@ -36,7 +36,7 @@ const App = () => {
       userToken: "",
       userId: "",
       isAdmin: "",
-      isHomeScreen: "",
+      isPatient: "",
       isVisibleMenuButton: "",
     }),
     []
@@ -44,10 +44,9 @@ const App = () => {
   const storage = useLocalStorage(STORAGE_KEY, dataToStore);
 
   const [testId, setTestId] = useState("");
-  const [isVisibleProfileButton, setIsVisibleProfileButton] = useState(true);
   const [isOpenedDrawer, setIsOpenedDrawer] = useState(false);
-  const [cancelNewTestButton, setCancelNewTestButton] = useState(false);
   const [isShortTest, setIsShortTest] = useState(true);
+  const [isEditTest, setIsEditTest] = useState(true);
 
   const toggleDrawer = (open) => (event) => {
     if (
@@ -72,14 +71,11 @@ const App = () => {
           setItem,
           testId,
           setTestId,
-          isVisibleProfileButton,
-          setIsVisibleProfileButton,
           isOpenedDrawer,
           toggleDrawer,
-          cancelNewTestButton,
-          setCancelNewTestButton,
           isShortTest,
           setIsShortTest,
+          isEditTest, setIsEditTest
         }}
       >
         <ThemeProvider theme={theme}>

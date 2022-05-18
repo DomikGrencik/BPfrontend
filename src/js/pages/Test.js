@@ -29,10 +29,8 @@ const Test = () => {
     getItem,
     setItem,
     testId,
-    setIsVisibleProfileButton,
     isOpenedDrawer,
     toggleDrawer,
-    setCancelNewTestButton,
   } = useAppContext();
   const userToken = getItem("userToken");
 
@@ -258,8 +256,6 @@ const Test = () => {
             onClick={() => {
               navigate("/patient", { replace: true });
               setIsVisibleMenuButton(true);
-              setIsVisibleProfileButton(true);
-              setCancelNewTestButton(false);
             }}
             sx={{
               position: "fixed",

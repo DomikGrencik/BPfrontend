@@ -32,15 +32,13 @@ const Home = () => {
       setItem("isVisibleMenuButton", isVisibleMenuButton),
     [setItem]
   );
-  const setIsHomeScreen = useCallback(
-    (isHomeScreen) => setItem("isHomeScreen", isHomeScreen),
-    [setItem]
-  );
 
   const [input, setInput] = useState("");
   const [id, setId] = useState("");
   const [therapists, setTherapists] = useState([]);
   const [patients, setPatients] = useState([]);
+
+  const [therapistWasDeleted, setTherapistWasDeleted] = useState(false);
 
   const [loading, setLoading] = useState(true);
 
@@ -100,7 +98,14 @@ const Home = () => {
     } else {
       navigate("/", { replace: true });
     }
-  }, [initialize, isAdmin, navigate, setIsPatient, userToken]);
+  }, [
+    initialize,
+    isAdmin,
+    navigate,
+    setIsPatient,
+    userToken,
+    therapistWasDeleted,
+  ]);
 
   const deleteTherapist = useCallback(async () => {
     const response = await apiFetch({
@@ -113,11 +118,21 @@ const Home = () => {
 
     if (response) {
       setTherapists(therapists.filter((therapist) => therapist.id !== id));
+      setTherapistWasDeleted(!therapistWasDeleted);
+      setIsVisibleMenuButton(false);
     } else {
       initialize();
       navigate("/", { replace: true });
     }
-  }, [id, initialize, navigate, therapists, userToken]);
+  }, [
+    id,
+    initialize,
+    navigate,
+    setIsVisibleMenuButton,
+    therapistWasDeleted,
+    therapists,
+    userToken,
+  ]);
 
   const deletePatient = useCallback(async () => {
     const response = await apiFetch({
@@ -130,11 +145,12 @@ const Home = () => {
 
     if (response) {
       setPatients(patients.filter((patient) => patient.id_patient !== id));
+      setIsVisibleMenuButton(false);
     } else {
       initialize();
       navigate("/", { replace: true });
     }
-  }, [id, initialize, navigate, patients, userToken]);
+  }, [id, initialize, navigate, patients, setIsVisibleMenuButton, userToken]);
 
   return loading ? (
     <div className="flex--grow flex flex--justify-center flex--align-center">
@@ -194,7 +210,6 @@ const Home = () => {
                             setUserId(therapist.id);
                             setIsPatient(false);
                             setIsVisibleMenuButton(true);
-                            setIsHomeScreen(false);
                           }}
                         >
                           <ListItemText
@@ -248,7 +263,6 @@ const Home = () => {
                         setUserId(patient.id_patient);
                         setIsPatient(true);
                         setIsVisibleMenuButton(true);
-                        setIsHomeScreen(false);
                       }}
                     >
                       <ListItemText

@@ -41,10 +41,9 @@ const Patient = () => {
     setItem,
     testId,
     setTestId,
-    setIsVisibleProfileButton,
-    setCancelNewTestButton,
     isShortTest,
     setIsShortTest,
+    setIsEditTest,
   } = useAppContext();
   const userToken = getItem("userToken");
   const userId = getItem("userId");
@@ -751,7 +750,7 @@ const Patient = () => {
                     : navigate("/test", { replace: true });
                   handleCloseModal();
                   setIsVisibleMenuButton(false);
-                  setIsVisibleProfileButton(false);
+                  setIsEditTest(true);
                 }}
                 sx={{ width: 210, height: 56 }}
                 variant="outlined"
@@ -826,8 +825,7 @@ const Patient = () => {
               addTest();
               setIsShortTest(false);
               setIsVisibleMenuButton(false);
-              setIsVisibleProfileButton(false);
-              setCancelNewTestButton(true);
+              setIsEditTest(false);
             }}
             sx={{ width: 210, height: 56 }}
             variant="contained"
@@ -840,8 +838,7 @@ const Patient = () => {
               addShortTest();
               setIsShortTest(true);
               setIsVisibleMenuButton(false);
-              setIsVisibleProfileButton(false);
-              setCancelNewTestButton(true);
+              setIsEditTest(false);
             }}
             sx={{ width: 210, height: 56 }}
             variant="contained"
