@@ -72,7 +72,6 @@ const MenuAppBar = () => {
   const navigate = useNavigate();
 
   const location = useLocation();
-  console.log(location);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -286,7 +285,7 @@ const MenuAppBar = () => {
               pointerEvents: "none",
             }}
           >
-            3F
+            3F - Test
           </Typography>
           <span></span>
           {userToken && (

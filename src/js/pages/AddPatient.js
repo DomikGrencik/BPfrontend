@@ -103,6 +103,7 @@ const AddPatient = () => {
           required
           label="Jméno"
           variant="outlined"
+          autoComplete="off"
         />
         <TextField
           onChange={(event) =>
@@ -111,6 +112,7 @@ const AddPatient = () => {
           required
           label="Příjmení"
           variant="outlined"
+          autoComplete="off"
         />
         <div className="page__width">
           <LocalizationProvider dateAdapter={AdapterDateFns}>

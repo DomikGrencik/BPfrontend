@@ -87,6 +87,7 @@ const AddTherapist = () => {
           required
           label="Jméno"
           variant="outlined"
+          autoComplete="off"
         />
         <TextField
           onChange={(event) =>
@@ -95,6 +96,7 @@ const AddTherapist = () => {
           required
           label="Příjmení"
           variant="outlined"
+          autoComplete="off"
         />
         {[
           { label: "Nové heslo", value: "password" },

@@ -533,7 +533,7 @@ const Patient = () => {
           );
         })()}
         <h3 style={{ marginTop: 8, marginBottom: 8 }}>
-          Základné testy pacienta
+          Základní testy pacienta
         </h3>
         {loading ? (
           <div className="flex--grow flex flex--justify-center flex--align-center">

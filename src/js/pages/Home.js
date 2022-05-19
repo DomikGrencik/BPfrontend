@@ -18,10 +18,12 @@ import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/apiFetch";
 
 const Home = () => {
-  const { initialize, getItem, setItem, setIsVisibleNavButton } = useAppContext();
+  const { initialize, getItem, setItem, setIsVisibleNavButton } =
+    useAppContext();
   const userToken = getItem("userToken");
   const isAdmin = getItem("isAdmin");
   const setUserId = (id) => setItem("userId", id);
+  const userId = getItem("userId");
   const setIsPatient = useCallback(
     (isPatient) => setItem("isPatient", isPatient),
     [setItem]
@@ -114,12 +116,24 @@ const Home = () => {
     if (response) {
       setTherapists(therapists.filter((therapist) => therapist.id !== id));
       setTherapistWasDeleted(!therapistWasDeleted);
-      setIsVisibleNavButton(false);
+      if (!isPatient && userId === id) {
+        setIsVisibleNavButton(false);
+      }
     } else {
       initialize();
       navigate("/", { replace: true });
     }
-  }, [id, initialize, navigate, setIsVisibleNavButton, therapistWasDeleted, therapists, userToken]);
+  }, [
+    id,
+    initialize,
+    isPatient,
+    navigate,
+    setIsVisibleNavButton,
+    therapistWasDeleted,
+    therapists,
+    userId,
+    userToken,
+  ]);
 
   const deletePatient = useCallback(async () => {
     const response = await apiFetch({
@@ -132,12 +146,23 @@ const Home = () => {
 
     if (response) {
       setPatients(patients.filter((patient) => patient.id_patient !== id));
-      setIsVisibleNavButton(false);
+      if (isPatient && userId === id) {
+        setIsVisibleNavButton(false);
+      }
     } else {
       initialize();
       navigate("/", { replace: true });
     }
-  }, [id, initialize, navigate, patients, setIsVisibleNavButton, userToken]);
+  }, [
+    id,
+    initialize,
+    isPatient,
+    navigate,
+    patients,
+    setIsVisibleNavButton,
+    userId,
+    userToken,
+  ]);
 
   return loading ? (
     <div className="flex--grow flex flex--justify-center flex--align-center">
