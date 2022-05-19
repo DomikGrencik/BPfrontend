@@ -27,11 +27,13 @@ import EditIcon from "@mui/icons-material/Edit";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import DownloadIcon from "@mui/icons-material/Download";
 import { apiFetch } from "../utils/apiFetch";
 import { useAppContext } from "../../App";
 import { useNavigate } from "react-router-dom";
 import _ from "lodash";
 import Chart from "react-apexcharts";
+import { CSVLink } from "react-csv";
 import { mapGender } from "../utils/functions";
 
 const Patient = () => {
@@ -126,6 +128,38 @@ const Patient = () => {
   const handleCloseModalEdit = () => setOpenModalEdit(false);
 
   const navigate = useNavigate();
+
+  const fileNameTest = `${patient.id_patient}_${patient.name}_${patient.surename}_testy`;
+  const headersTest = [
+    { label: "Datum", key: "created_at" },
+    { label: "ID", key: "id_test" },
+    { label: "DX", key: "points.dx" },
+    { label: "Rty", key: "points.lips" },
+    { label: "Celist", key: "points.jaw" },
+    { label: "Jazyk", key: "points.tongue" },
+    { label: "Respirace", key: "points.resp" },
+    { label: "Respirace pri fonaci", key: "points.respPhon" },
+    { label: "Fonace", key: "points.phon" },
+    { label: "Artikulace", key: "points.art" },
+    { label: "Prozodie", key: "points.pros" },
+    { label: "Srozumitelnost", key: "points.intel" },
+  ];
+
+  const fileNameShortTest = `${patient.id_patient}_${patient.name}_${patient.surename}_zjednoduseneTesty`;
+  const headersShortTest = [
+    { label: "Datum", key: "created_at" },
+    { label: "ID", key: "id_short_test" },
+    { label: "DX", key: "points.dx" },
+    { label: "Rty", key: "points.lips" },
+    { label: "Celist", key: "points.jaw" },
+    { label: "Jazyk", key: "points.tongue" },
+    { label: "Respirace", key: "points.resp" },
+    { label: "Respirace pri fonaci", key: "points.respPhon" },
+    { label: "Fonace", key: "points.phon" },
+    { label: "Artikulace", key: "points.art" },
+    { label: "Prozodie", key: "points.pros" },
+    { label: "Srozumitelnost", key: "points.intel" },
+  ];
 
   // Sums points of each test to defined categories
   const getTestDX = useCallback(
@@ -532,9 +566,23 @@ const Patient = () => {
             <></>
           );
         })()}
-        <h3 style={{ marginTop: 8, marginBottom: 8 }}>
-          Základní testy pacienta
-        </h3>
+        <div
+          className="flex flex--justify-space-between flex--align-center"
+          style={{ marginTop: 8, marginBottom: 8 }}
+        >
+          <h3>Základní testy pacienta</h3>
+          <CSVLink
+            separator=";"
+            headers={headersTest}
+            data={tests}
+            filename={fileNameTest}
+            style={{ textDecoration: "none", color: "#fff" }}
+          >
+            <IconButton>
+              <DownloadIcon />
+            </IconButton>
+          </CSVLink>
+        </div>
         {loading ? (
           <div className="flex--grow flex flex--justify-center flex--align-center">
             <CircularProgress />
@@ -628,9 +676,23 @@ const Patient = () => {
           </Paper>
         )}
 
-        <h3 style={{ marginTop: 24, marginBottom: 8 }}>
-          Zjednodušené testy pacienta
-        </h3>
+        <div
+          className="flex flex--justify-space-between flex--align-center"
+          style={{ marginTop: 24, marginBottom: 8 }}
+        >
+          <h3>Zjednodušené testy pacienta</h3>
+          <CSVLink
+            separator=";"
+            headers={headersShortTest}
+            data={shortTests}
+            filename={fileNameShortTest}
+            style={{ textDecoration: "none", color: "#fff" }}
+          >
+            <IconButton>
+              <DownloadIcon />
+            </IconButton>
+          </CSVLink>
+        </div>
         {loading ? (
           <div className="flex--grow flex flex--justify-center flex--align-center">
             <CircularProgress />
