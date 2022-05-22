@@ -940,7 +940,11 @@ const Patient = () => {
                   })
                 }
                 renderInput={(params) => (
-                  <TextField {...params} helperText={null} />
+                  <TextField
+                    {...params}
+                    helperText={null}
+                    sx={{ width: 210 }}
+                  />
                 )}
               />
             </LocalizationProvider>
