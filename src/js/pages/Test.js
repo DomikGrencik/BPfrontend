@@ -150,7 +150,7 @@ const Test = () => {
     tasks.length && (
       <main className="page container--default flex--grow flex">
         <div className="page__form flex--grow flex flex--column flex--align-center">
-          <h2>{`${tasks[idTask].id_task} ${tasks[idTask].category}`}</h2>
+          <h2>{`${tasks[idTask].category}`}</h2>
           <div className="page__width2">
             <h3>{tasks[idTask].subcategory}</h3>
             <h3 style={{ marginTop: 5 }}>{tasks[idTask].title}</h3>
