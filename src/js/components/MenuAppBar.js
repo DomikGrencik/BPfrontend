@@ -346,7 +346,6 @@ const MenuAppBar = () => {
                         handleCloseMenu();
                         setIsVisibleNavButton(false);
                       }}
-                      // style={{ color: "red" }}
                     >
                       <ListItemIcon>
                         <Logout fontSize="small" />
