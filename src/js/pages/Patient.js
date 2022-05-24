@@ -230,6 +230,7 @@ const Patient = () => {
     [initialize, navigate, userToken]
   );
 
+  // Sums points of each short test to defined categories
   const getShortTestDX = useCallback(
     async (id_test) => {
       const response = await apiFetch({
@@ -570,7 +571,7 @@ const Patient = () => {
           className="flex flex--justify-space-between flex--align-center"
           style={{ marginTop: 8, marginBottom: 8 }}
         >
-          <h3>Základní testy pacienta</h3>
+          <h3>Originální Test 3F</h3>
           <CSVLink
             separator=";"
             headers={headersTest}
@@ -680,7 +681,7 @@ const Patient = () => {
           className="flex flex--justify-space-between flex--align-center"
           style={{ marginTop: 24, marginBottom: 8 }}
         >
-          <h3>Zjednodušené testy pacienta</h3>
+          <h3>Zjednodušený Test 3F</h3>
           <CSVLink
             separator=";"
             headers={headersShortTest}
@@ -883,7 +884,7 @@ const Patient = () => {
             sx={{ width: 210, height: 56 }}
             variant="contained"
           >
-            Základní verze
+            Originální verze
           </Button>
           <Button
             onClick={() => {

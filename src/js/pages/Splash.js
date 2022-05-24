@@ -9,6 +9,7 @@ const Splash = () => {
 
   const navigate = useNavigate();
 
+  // Checks if user token has value, then decides where to proceed
   useEffect(() => {
     userToken
       ? navigate("/home", { replace: true })

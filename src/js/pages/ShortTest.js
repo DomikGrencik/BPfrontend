@@ -150,9 +150,6 @@ const ShortTest = () => {
       <CircularProgress />
     </div>
   ) : (
-    // <main className="page container--default flex--grow flex">
-    //   <h3>Som short test</h3>
-    // </main>
     tasks.length && (
       <main className="page container--default flex--grow flex">
         <div className="page__form flex--grow flex flex--column flex--align-center">

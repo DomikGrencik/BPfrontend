@@ -47,6 +47,7 @@ const Test = () => {
 
   const navigate = useNavigate();
 
+  // Gets all test's tasks
   useEffect(() => {
     const fetchData = async () => {
       const response = await apiFetch({
@@ -74,6 +75,7 @@ const Test = () => {
     }
   }, [initialize, navigate, userToken]);
 
+  // Gets one test's task with points value
   useEffect(() => {
     setShowBackButton(idTask > 0);
     setShowNextButton(idTask < 44);
@@ -113,6 +115,7 @@ const Test = () => {
     }
   }, [idTask, initialize, navigate, testId, userToken]);
 
+  //Adds or updates points value of one task of test
   const handleChange = useCallback(
     async (event) => {
       const points = event.target.value;

@@ -53,6 +53,7 @@ const Therapist = () => {
     setPasswordProps({ ...passwordProps, [prop]: event.target.value });
   };
 
+  // Checks if password and passwordReapeat match
   useEffect(() => {
     if (passwordProps.password !== passwordProps.passwordRepeat) {
       setFormError(true);
@@ -70,6 +71,7 @@ const Therapist = () => {
     });
   };
 
+  // Gets data of one therapist by given id
   useEffect(() => {
     const fetchData = async () => {
       const response = await apiFetch({
@@ -96,6 +98,7 @@ const Therapist = () => {
     }
   }, [initialize, navigate, userId, userToken]);
 
+  // Updates name and surename of one patient by given id
   const changeName = useCallback(
     async (event) => {
       event.preventDefault();
@@ -121,6 +124,7 @@ const Therapist = () => {
     [initialize, navigate, newTherapist, userId, userToken]
   );
 
+  // Updates password of one patient by given id
   const changePassword = useCallback(
     async (event) => {
       event.preventDefault();

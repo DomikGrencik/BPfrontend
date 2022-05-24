@@ -50,6 +50,7 @@ const Home = () => {
     setInput(newValue);
   };
 
+  // Gets all therapists and patients from database
   useEffect(() => {
     const fetchData = async () => {
       if (isAdmin) {
@@ -104,6 +105,7 @@ const Home = () => {
     therapistWasDeleted,
   ]);
 
+  // Deletes therapist by given id
   const deleteTherapist = useCallback(async () => {
     const response = await apiFetch({
       route: `/users/${id}`,
@@ -135,6 +137,7 @@ const Home = () => {
     userToken,
   ]);
 
+  // Deletes patient by given id
   const deletePatient = useCallback(async () => {
     const response = await apiFetch({
       route: `/patients/${id}`,

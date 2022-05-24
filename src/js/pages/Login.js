@@ -29,6 +29,7 @@ const Login = () => {
 
   const navigate = useNavigate();
 
+  // Checks if given data were correct, then saves user token to local storage
   const submitForm = useCallback(
     async (event) => {
       event.preventDefault();

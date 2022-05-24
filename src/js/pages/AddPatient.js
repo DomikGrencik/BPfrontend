@@ -31,6 +31,7 @@ const AddPatient = () => {
 
   const navigate = useNavigate();
 
+  // Adds patient to database
   const submitForm = useCallback(
     async (event) => {
       event.preventDefault();
@@ -60,6 +61,7 @@ const AddPatient = () => {
     [initialize, navigate, patientData, userToken]
   );
 
+  // Gets all therapists from database
   useEffect(() => {
     const fetchData = async () => {
       const response = await apiFetch({

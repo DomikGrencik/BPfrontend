@@ -32,6 +32,7 @@ const AddTherapist = () => {
 
   const navigate = useNavigate();
 
+  // Checks if password and passwordReapeat match
   useEffect(() => {
     if (passwordProps.password !== passwordProps.passwordRepeat) {
       setFormError(true);
@@ -49,6 +50,7 @@ const AddTherapist = () => {
     });
   };
 
+  // Adds therapist to database
   const submitForm = useCallback(
     async (event) => {
       event.preventDefault();
